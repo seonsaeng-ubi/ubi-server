@@ -5,8 +5,6 @@ services:
     build: .
     container_name: django
     restart: always
-    env_file:
-      - django.env
     ports:
       - "8000:8000"
     volumes:
@@ -20,5 +18,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - .:/app
+      - ./static:/static
     depends_on:
       - app

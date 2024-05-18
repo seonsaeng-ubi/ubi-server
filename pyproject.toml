@@ -16,6 +16,7 @@ psycopg2-binary = "^2.9.9"
 django-storages = "^1.14.3"
 django-filter = "^24.2"
 pillow = "^10.3.0"
+django-environ = "^0.11.2"
 
 [build-system]
 requires = ["poetry-core"]
