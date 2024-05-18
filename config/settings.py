@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,17 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
+SECRET_KEY = '#ow5e0=@7&bv*(od&z1s3gain!e^wh!0quz=iq6y$5k6-k8zhn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') != 'False'
+DEBUG = False
 
-ALLOWED_HOSTS = ['*',]
-
+ALLOWED_HOSTS = ['*', ]
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +39,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+LOCAL_APPS = [
+    'api.user.apps.UserConfig',
+    'api.logger.apps.LoggerConfig',
+    'api.notification.apps.NotificationConfig',
+]
+
+# OTHER LIBRARIES
+THIRD_PARTY_APPS = [
+    # DJANGO STORAGES FOR SERVER
+    'storages',
+    # filter
+    'django_filters',
+    # DRF
+    'rest_framework',
+    'rest_framework.authtoken',
+]
+
+INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -55,8 +74,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates')
+        ],        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -68,7 +88,13 @@ TEMPLATES = [
     },
 ]
 
+# DJANGO BASE USER MODEL
+SITE_ID = 1
+AUTH_USER_MODEL = 'user.User'
+
+# APPLICATION
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'django_app.asgi.application'
 
 
 # Database
@@ -100,25 +126,52 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ADMIN SITE NAME
+SITE_NAME = 'tenewto'
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+# BASE DJANGO LOCATION
+LANGUAGE_CODE = 'ko'
+TIME_ZONE = 'Asia/Seoul'
 USE_I18N = True
+USE_L10N = True
+USE_TZ = False
 
-USE_TZ = True
+# BASE STATIC, MEDIA ROOT
+STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = 'media'
 
+# JWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(weeks=99999),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(weeks=99999),
+    'ROTATE_REFRESH_TOKENS': True,
+}
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
+# DJANGO REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'api.user.serializers.login.CustomJWTAuthentication',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'djangorestframework_camel_case.parser.CamelCaseFormParser',
+        'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DATETIME_FORMAT': '%Y.%m.%d',
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
