@@ -126,12 +126,13 @@ else:
     }
 
 # S3
-USE_S3 = False
+USE_S3 = True
 
-if USE_S3:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    MEDIAFILES_LOCATION = 'media'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
+# BASE STATIC, MEDIA ROOT
 AWS_S3_SECURE_URLS = True
 AWS_REGION = 'ap-northeast-2'
 AWS_STORAGE_BUCKET_NAME = env('S3_BUCKET_NAME')
@@ -143,6 +144,14 @@ AWS_DEFAULT_ACL = None
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
+
+if USE_S3 is True:
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    MEDIAFILES_LOCATION = 'media'
+    STATIC_URL = f'https://{AWS_S3_HOST}/'
+else:
+    STATIC_URL = '/static/'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -163,7 +172,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ADMIN SITE NAME
-SITE_NAME = 'tenewto'
+SITE_NAME = env('SITE_NAME'),
 
 # BASE DJANGO LOCATION
 LANGUAGE_CODE = 'ko'
@@ -171,12 +180,6 @@ TIME_ZONE = 'Asia/Seoul'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = False
-
-# BASE STATIC, MEDIA ROOT
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # JWT
 SIMPLE_JWT = {
