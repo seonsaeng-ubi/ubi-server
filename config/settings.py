@@ -11,28 +11,20 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-import json
-import environ
 import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-env = environ.Env(
-    DEBUG=(bool, False)
-)
-environ.Env.read_env(os.path.join(PROJECT_DIR, '.env'))
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#ow5e0=@7&bv*(od&z1s3gain!e^wh!0quz=iq6y$5k6-k8zhn'
-DEBUG = os.environ.get('DEBUG')
+# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
+DEBUG = os.getenv('DEBUG') != 'False'
 
 if DEBUG is True:
     ALLOWED_HOSTS = ['*', ]
 else:
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'app', 'django', '3.39.171.207', '172.26.5.242']
+    ALLOWED_HOSTS = ['*', ]
 
 # Application definition
 
@@ -119,11 +111,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DATABASE_NAME'),
-            'USER': os.environ.get('DATABASE_USER'),
-            'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-            'HOST': os.environ.get('DATABASE_HOST'),
-            'PORT': os.environ.get('DATABASE_PORT'),
+            'NAME': os.getenv('DATABASE_NAME'),
+            'USER': os.getenv('DATABASE_USER'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+            'HOST': os.getenv('DATABASE_HOST'),
+            'PORT': os.getenv('DATABASE_PORT'),
         }
     }
 
@@ -140,8 +132,8 @@ AWS_REGION = 'ap-northeast-2'
 AWS_STORAGE_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_HOST = '%s.s3.ap-northeast-2.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-AWS_ACCESS_KEY_ID = os.environ.get('S3_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('S3_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY')
 AWS_DEFAULT_ACL = None
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
@@ -174,7 +166,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ADMIN SITE NAME
-SITE_NAME = os.environ.get('SITE_NAME'),
+SITE_NAME = os.getenv('SITE_NAME'),
 
 # BASE DJANGO LOCATION
 LANGUAGE_CODE = 'ko'
