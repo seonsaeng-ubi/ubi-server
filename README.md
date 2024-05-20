@@ -42,11 +42,6 @@ Docker Engine 설치
 apt-get install docker-ce docker-ce-cli containerd.io
 ```
 
-Docker Engine 설치
-```
-apt-get install docker-ce docker-ce-cli containerd.io
-```
-
 Docker Compose 설치 (최신 버전으로 바꾸려면 버전 명만 변경)
 ```
 curl -L "https://github.com/docker/compose/releases/download/2.5.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -61,4 +56,33 @@ chmod +x /usr/local/bin/docker-compose
 ```
 docker -v
 docker-compose -v
+```
+
+.env.example 파일 바탕으로 .env 파일 생성 및 vi로 수정
+```
+cp .env.example .env
+vi .env
+```
+---
+
+## Docker 관련 명령어
+
+실행 중인 Docker 컨테이너 리스트 (-qa 제외하면 모든 컨테이너 리스트)
+```
+docker ps -qa
+```
+
+Docker 컨테이너 모두 삭제
+```
+docker rm -f $(docker ps -qa)
+```
+
+Docker 이미지 리스트
+```
+docker image ls -a
+```
+
+Docker 이미지 모두 삭제
+```
+docker rmi $(docker images -q)
 ```
