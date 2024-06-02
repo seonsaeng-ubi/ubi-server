@@ -50,6 +50,7 @@ THIRD_PARTY_APPS = [
     # filter
     'django_filters',
     # DRF
+    'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -208,3 +209,16 @@ REST_FRAMEWORK = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'import.path.to.urls.api_info',
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        }
+    },
+}
+
+REDOC_SETTINGS = {
+   'LAZY_RENDERING': False,
+}
