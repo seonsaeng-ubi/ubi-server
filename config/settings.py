@@ -219,3 +219,5 @@ REDOC_SETTINGS = {
 cred_path = os.path.join(BASE_DIR, "serviceAccountKey.json")
 cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
+
+MAILGUN_API_KEY=os.getenv('MAILGUN_KEY')

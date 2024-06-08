@@ -8,14 +8,14 @@ from api.logger.models import EmailLog
 @receiver(post_save, sender=EmailLog)
 def send_mail_gun(sender, instance, created, *args, **kwargs):
     if created:
-        url = "https://api.mailgun.net/v3/api.ustain.be/messages"
+        url = "https://api.mailgun.net/v3/www.woobi.co.uk/messages"
         headers = {
             'Authorization': f'api {settings.MAILGUN_API_KEY}'
         }
         response = requests.post(
-            "https://api.mailgun.net/v3/api.ustain.be/messages",
+            "https://api.mailgun.net/v3/www.woobi.co.uk/messages",
             auth=("api", settings.MAILGUN_API_KEY),
-            data={"from": "mail@ustain.be",
+            data={"from": "mail@woobi.co.uk",
                   "to": instance.to,
                   "subject": instance.title,
                   "text": instance.body})
