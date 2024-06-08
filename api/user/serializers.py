@@ -3,7 +3,6 @@ import hashlib
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from api.logger.models import PhoneLog
 from rest_framework import serializers
 from django.core.validators import validate_email
 from api.user.validators import validate_password

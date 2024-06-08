@@ -188,3 +188,5 @@ fabric.properties
 
 .idea/
 /.aws/credentials
+/.firebase/
+/serviceAccountKey.json
