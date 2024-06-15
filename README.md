@@ -86,3 +86,9 @@ Docker 이미지 모두 삭제
 ```
 docker rmi $(docker images -q)
 ```
+
+Pull 이상 있을 시
+```
+git fetch --all
+git reset --hard origin/main 아니면 origin/master 등등
+```
