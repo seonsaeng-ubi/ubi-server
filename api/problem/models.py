@@ -39,7 +39,7 @@ class SmallSubject(models.Model):
 class ProblemSet(models.Model):
     title = models.CharField(max_length=512, verbose_name='문제 셋 이름', null=True, blank=True)
     description = models.TextField(verbose_name='설명', null=True, blank=True)
-    region = models.ForeignKey(Region, verbose_name='지역', on_delete=models.SET_NULL)
+    region = models.ForeignKey(Region, verbose_name='지역', null=True, on_delete=models.SET_NULL)
 
     class PracticeChoice(models.TextChoices):
         PRACTICE = 'P', '연습'
@@ -64,8 +64,8 @@ class Problem(models.Model):
     number = models.CharField(max_length=32, verbose_name='고유 번호', null=True, blank=True)
     title = models.CharField(max_length=512, verbose_name='제목', null=True, blank=True)
     type = models.CharField(choices=TypeChoices.choices, max_length=1, blank=True)
-    region = models.ForeignKey(Region, verbose_name='지역', on_delete=models.SET_NULL)
-    big_subject = models.ForeignKey(BigSubject, verbose_name='대주제', on_delete=models.SET_NULL)
+    region = models.ForeignKey(Region, verbose_name='지역', null=True, on_delete=models.SET_NULL)
+    big_subject = models.ForeignKey(BigSubject, verbose_name='대주제', null=True, on_delete=models.SET_NULL)
     small_subject = models.ManyToManyField(SmallSubject, verbose_name='소주제')
     presentation = models.TextField(verbose_name='제시문', null=True, blank=True)
     question = models.TextField(verbose_name='문제', null=True, blank=True)

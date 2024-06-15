@@ -31,6 +31,7 @@ DJANGO_APPS = [
 LOCAL_APPS = [
     'api.user.apps.UserConfig',
     'api.logger.apps.LoggerConfig',
+    'api.problem.apps.ProblemConfig',
     'api.notification.apps.NotificationConfig',
 ]
 
