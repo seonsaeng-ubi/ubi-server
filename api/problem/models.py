@@ -59,7 +59,8 @@ class ProblemSet(models.Model):
 
 
 class Problem(models.Model):
-    problem_set = models.ForeignKey(ProblemSet, null=True, blank=True, verbose_name='문제 셋', on_delete=models.CASCADE)
+    problem_set = models.ForeignKey(ProblemSet, null=True, blank=True, verbose_name='문제 셋',
+                                    on_delete=models.CASCADE, related_name='problem_problem_set')
 
     class TypeChoices(models.TextChoices):
         CONCEPTION = 'A', '구상'

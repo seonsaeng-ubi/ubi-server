@@ -1,8 +1,8 @@
-from .serializers import BigSubjectSerializer, RegionSerializer, RealProblemSetSerializer, ProblemListSerializer, \
-    ProblemUpdateSerializer
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
+from .serializers import BigSubjectSerializer, RegionSerializer, RealProblemSetSerializer, \
+    ProblemListSerializer, ProblemUpdateSerializer
+from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import SmallSubject, BigSubject, Region, ProblemSet, Problem
+from .models import BigSubject, Region, ProblemSet, Problem
 from ..utils import StandardResultsSetPagination
 
 
@@ -36,7 +36,7 @@ class ScrapUpdateAPIView(RetrieveUpdateAPIView):
 # 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
 class PracticeProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny, IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     model = Problem
 
@@ -46,12 +46,12 @@ class PracticeProblemListAPIVIew(ListAPIView):
         problems = Problem.objects.filter(
             region=region,
             type=type,
-            problem_set_type='P',
+            problem_set__type='P',
         )
         return problems
 
 
-# 실전 문제셋  (지역별 필터링)
+# 실전 문제셋 (지역별 필터링)
 class RealProblemSetAPIView(ListAPIView):
     serializer_class = RealProblemSetSerializer
     permission_classes = [AllowAny]
@@ -67,7 +67,7 @@ class RealProblemSetAPIView(ListAPIView):
 # 실전 문제 리스트
 class RealProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):

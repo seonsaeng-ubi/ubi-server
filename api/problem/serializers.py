@@ -27,6 +27,10 @@ class RegionSerializer(serializers.ModelSerializer):
 # 문제 리스트
 class ProblemListSerializer(serializers.ModelSerializer):
     is_scrapped = serializers.SerializerMethodField(read_only=True)
+    type = serializers.CharField(read_only=True, source='get_type_display')
+    region = serializers.SerializerMethodField(read_only=True)
+    big_subject = serializers.StringRelatedField(many=False, read_only=True)
+    small_subject = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Problem
@@ -40,12 +44,22 @@ class ProblemListSerializer(serializers.ModelSerializer):
         else:
             return False
 
+    def get_region(self, obj):
+        return obj.region.title
+
 
 # 실전 문제 세트
 class RealProblemSetSerializer(serializers.ModelSerializer):
+    class SmallProblemSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Problem
+            fields = ['id', 'title']
+
+    problems = SmallProblemSerializer(many=True, read_only=True, source='problem_problem_set')
+
     class Meta:
         model = ProblemSet
-        fields = ['id', 'title', 'description', 'type']
+        fields = ['id', 'title', 'description', 'problems']
 
 
 # 문제 스크랩 / 해제
@@ -55,6 +69,13 @@ class ProblemUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = ['id', 'is_scrapped']
+
+    def get_is_scrapped(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user in obj.scrapped_users.all()
+        else:
+            return False
 
     def update(self, instance, validated_data):
         user = self.context['request'].user
