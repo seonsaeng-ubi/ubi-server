@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 from django.core.validators import validate_email
+from api.logger.models import EmailLog
 from api.user.validators import validate_password
 from django.contrib.auth.hashers import make_password
 from rest_framework.exceptions import ValidationError
@@ -167,8 +168,8 @@ class EmailVerifierCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def send_code(self, attrs):
-        body = f'아키디카 회원가입 인증번호: [{attrs["code"]}]'
-        PhoneLog.objects.create(to=attrs['phone'], body=body)
+        body = f'선생우비 회원가입 인증번호: [{attrs["code"]}]'
+        EmailLog.objects.create(to=attrs['email'], body=body)
 
 
 class EmailVerifierConfirmSerializer(serializers.ModelSerializer):

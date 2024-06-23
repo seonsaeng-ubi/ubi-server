@@ -20,19 +20,20 @@ class BigSubject(models.Model):
         return str(self.title)
 
     class Meta:
-        verbose_name = '주제'
+        verbose_name = '대주제'
         verbose_name_plural = verbose_name
 
 
 class SmallSubject(models.Model):
-    big_subject = models.ForeignKey(BigSubject, max_length=512, verbose_name='대주제', on_delete=models.CASCADE, null=True)
+    big_subject = models.ForeignKey(BigSubject, max_length=512, verbose_name='대주제',
+                                    on_delete=models.CASCADE, null=True, blank=True, related_name='big_small_subjects')
     title = models.CharField(max_length=512, verbose_name='소주제', null=True, blank=True)
 
     def __str__(self):
         return str(self.title)
 
     class Meta:
-        verbose_name = '주제'
+        verbose_name = '소주제'
         verbose_name_plural = verbose_name
 
 
@@ -56,6 +57,8 @@ class ProblemSet(models.Model):
 
 
 class Problem(models.Model):
+    problem_set = models.ForeignKey(ProblemSet, null=True, blank=True, verbose_name='문제 셋', on_delete=models.CASCADE)
+
     class TypeChoices(models.TextChoices):
         CONCEPTION = 'A', '구상'
         IMMEDIATE = 'B', '즉답'
