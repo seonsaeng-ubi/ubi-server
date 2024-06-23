@@ -1,7 +1,7 @@
-from django.db import models
-from api.user.models import User
 from django_summernote.utils import get_attachment_storage, get_attachment_upload_to
 from django_summernote import models as summermodel
+from api.user.models import User
+from django.db import models
 
 
 class Region(models.Model):
