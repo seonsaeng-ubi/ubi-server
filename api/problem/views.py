@@ -47,7 +47,7 @@ class PracticeProblemListAPIVIew(ListAPIView):
             region=region,
             type=type,
             problem_set__type='P',
-        )
+        ).prefetch_related('problem_set')
         return problems
 
 
@@ -61,7 +61,7 @@ class RealProblemSetAPIView(ListAPIView):
         return ProblemSet.objects.filter(
             region=region,
             type='A'
-        )
+        ).prefetch_related('problem_problem_set')
 
 
 # 실전 문제 리스트
@@ -74,7 +74,7 @@ class RealProblemListAPIVIew(ListAPIView):
         problem_set = self.request.query_params.get('problem_set', '1')
         problems = Problem.objects.filter(
             problem_set_id=problem_set
-        )
+        ).prefetch_related('problem_set_id')
         return problems
 
 
@@ -88,7 +88,7 @@ class ScrappedProblemListAPIView(ListAPIView):
     def get_queryset(self):
         big_subject = self.request.query_params.get('big_subject', '0')
         small_subject = self.request.query_params.get('small_subject', '0')
-        problems = Problem.objects.all().prefetch_related('scrapped_users')
+        problems = Problem.objects.all().prefetch_related('scrapped_users', 'small_subject', 'big_subject_id')
         if big_subject == 0:
             problem_list = problems.filter(
                 scrapped_users__in=self.request.user
