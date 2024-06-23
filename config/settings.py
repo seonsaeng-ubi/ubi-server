@@ -10,7 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
-DEBUG = os.getenv('DEBUG') != 'False'
+# DEBUG = os.getenv('DEBUG') != 'False'
+DEBUG = True
 
 if DEBUG is True:
     ALLOWED_HOSTS = ['*', ]
@@ -41,6 +42,8 @@ THIRD_PARTY_APPS = [
     'storages',
     # filter
     'django_filters',
+    # summernote
+    'django_summernote',
     # DRF
     'drf_yasg',
     'rest_framework',
@@ -222,3 +225,15 @@ cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
 
 MAILGUN_API_KEY=os.getenv('MAILGUN_KEY')
+
+
+# SUMMERNOTE
+SUMMERNOTE_CONFIG = {
+    'attachment_model': 'problem.Summernote',
+    'iframe': True,
+}
+
+MAX_UPLOAD_SIZE = 10485760
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None

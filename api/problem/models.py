@@ -1,5 +1,7 @@
 from django.db import models
 from api.user.models import User
+from django_summernote.utils import get_attachment_storage, get_attachment_upload_to
+from django_summernote import models as summermodel
 
 
 class Region(models.Model):
@@ -81,3 +83,22 @@ class Problem(models.Model):
     class Meta:
         verbose_name = '문제'
         verbose_name_plural = verbose_name
+
+
+class Summernote(summermodel.AbstractAttachment):
+    problem = summermodel.models.ForeignKey(Problem, null=True, blank=True, verbose_name='문제',
+                                              on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='원본파일명',
+                            help_text="Defaults to filename, if left blank")
+    file = models.FileField(
+        upload_to=get_attachment_upload_to(),
+        storage=get_attachment_storage(),
+        unique=True
+    )
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = '첨부 이미지'
+        verbose_name_plural = '첨부 이미지'

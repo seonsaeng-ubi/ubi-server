@@ -26,7 +26,7 @@ class RegionSerializer(serializers.ModelSerializer):
 
 # 문제 리스트
 class ProblemListSerializer(serializers.ModelSerializer):
-    is_scrapped = serializers.BooleanField()
+    is_scrapped = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Problem
@@ -50,6 +50,8 @@ class RealProblemSetSerializer(serializers.ModelSerializer):
 
 # 문제 스크랩 / 해제
 class ProblemUpdateSerializer(serializers.ModelSerializer):
+    is_scrapped = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Problem
         fields = ['id', 'is_scrapped']

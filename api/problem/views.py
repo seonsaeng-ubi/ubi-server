@@ -38,6 +38,7 @@ class PracticeProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
+    model = Problem
 
     def get_queryset(self):
         region = self.request.query_params.get('region', '1')
@@ -82,25 +83,27 @@ class ScrappedProblemListAPIView(ListAPIView):
     serializer_class = ProblemListSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
+    model = Problem
 
     def get_queryset(self):
         big_subject = self.request.query_params.get('big_subject', '0')
         small_subject = self.request.query_params.get('small_subject', '0')
+        problems = Problem.objects.all().prefetch_related('scrapped_users')
         if big_subject == 0:
-            problems = Problem.objects.filter(
+            problem_list = problems.filter(
                 scrapped_users__in=self.request.user
             )
-            return problems
+            return problem_list
         else:
             if small_subject == 0:
-                problems = Problem.objects.filter(
+                problem_list = problems.filter(
                     scrapped_users__in=self.request.user,
                     big_subject_id=big_subject
                 )
-                return problems
+                return problem_list
             else:
-                problems = Problem.objects.filter(
+                problem_list = problems.filter(
                     scrapped_users__in=self.request.user,
                     small_subject__in=small_subject
                 )
-                return problems
+                return problem_list
