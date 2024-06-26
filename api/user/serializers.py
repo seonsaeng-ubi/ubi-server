@@ -1,17 +1,15 @@
 import random
 import hashlib
-from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
-from django.core.validators import validate_email
 from api.logger.models import EmailLog
 from api.user.validators import validate_password
 from django.contrib.auth.hashers import make_password
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError as DjangoValidationError
-from api.user.models import User, EmailVerifier, PhoneVerifier, SocialKindChoices, Profile
+from api.user.models import User, EmailVerifier, SocialKindChoices, Profile
 
 
 class UserSocialLoginSerializer(serializers.Serializer):
@@ -89,7 +87,13 @@ class UserRegisterSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['nickname', 'profile_image', 'points', 'firebase_token']
+        fields = ['nickname', 'firebase_token']
+
+    def update(self, instance, validated_data):
+        instance.nickname = validated_data.get('nickname', instance.nickname)
+        instance.firebase_token = validated_data.get('firebase_token', instance.firebase_token)
+        instance.save()
+        return instance
 
 
 class UserDetailUpdateSerializer(serializers.ModelSerializer):
