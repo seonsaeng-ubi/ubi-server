@@ -1,8 +1,8 @@
 from .serializers import BigSubjectSerializer, RegionSerializer, RealProblemSetSerializer, \
     ProblemListSerializer, ProblemUpdateSerializer
+from .models import BigSubject, Region, ProblemSet, Problem, SmallSubject
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import BigSubject, Region, ProblemSet, Problem
 from ..utils import StandardResultsSetPagination
 
 
@@ -36,19 +36,24 @@ class ScrapUpdateAPIView(RetrieveUpdateAPIView):
 # 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
 class PracticeProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
-    permission_classes = [AllowAny, IsAuthenticated]
+    permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     model = Problem
 
     def get_queryset(self):
-        region = self.request.query_params.get('region', '1')
+        region = int(self.request.query_params.get('region', '1'))
         type = self.request.query_params.get('type', 'A')
+        random = bool(self.request.query_params.get('random', 'False'))
         problems = Problem.objects.filter(
-            region=region,
+            region_id=region,
             type=type,
             problem_set__type='P',
-        ).prefetch_related('problem_set')
-        return problems
+        ).prefetch_related('problem_set', 'region')
+
+        if random is True:
+            return sorted(list(problems), key=lambda x: hash((self.request.user.id, x.id)))
+        else:
+            return problems
 
 
 # 실전 문제셋 (지역별 필터링)
@@ -57,11 +62,11 @@ class RealProblemSetAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        region = self.request.query_params.get('region', '1')
+        region = int(self.request.query_params.get('region', '1'))
         return ProblemSet.objects.filter(
-            region=region,
+            region_id=region,
             type='A'
-        ).prefetch_related('problem_problem_set')
+        ).prefetch_related('problem_problem_set', 'region')
 
 
 # 실전 문제 리스트
@@ -71,10 +76,10 @@ class RealProblemListAPIVIew(ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        problem_set = self.request.query_params.get('problem_set', '1')
+        problem_set = int(self.request.query_params.get('problem_set', '1'))
         problems = Problem.objects.filter(
             problem_set_id=problem_set
-        ).prefetch_related('problem_set_id')
+        ).prefetch_related('problem_set')
         return problems
 
 
@@ -86,24 +91,25 @@ class ScrappedProblemListAPIView(ListAPIView):
     model = Problem
 
     def get_queryset(self):
-        big_subject = self.request.query_params.get('big_subject', '0')
-        small_subject = self.request.query_params.get('small_subject', '0')
-        problems = Problem.objects.all().prefetch_related('scrapped_users', 'small_subject', 'big_subject_id')
-        if big_subject == 0:
+        big_subject_id = int(self.request.query_params.get('big_subject', '0'))
+        small_subject_id = int(self.request.query_params.get('small_subject', '0'))
+        problems = Problem.objects.all().prefetch_related('scrapped_users', 'small_subject', 'big_subject')
+        if big_subject_id == 0:
             problem_list = problems.filter(
                 scrapped_users__in=self.request.user
             )
             return problem_list
         else:
-            if small_subject == 0:
+            if small_subject_id == 0:
                 problem_list = problems.filter(
                     scrapped_users__in=self.request.user,
-                    big_subject_id=big_subject
+                    big_subject_id=big_subject_id
                 )
                 return problem_list
             else:
+                small_subject = SmallSubject.objects.get(id=small_subject_id)
                 problem_list = problems.filter(
                     scrapped_users__in=self.request.user,
-                    small_subject__in=small_subject
+                    small_subject__in=small_subject,
                 )
                 return problem_list

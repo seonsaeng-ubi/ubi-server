@@ -6,7 +6,7 @@ urlpatterns = [
     path('regions/', RegionAPIView.as_view()),
     path('subjects/', SubjectAPIView.as_view()),
     # 연습 문제 리스트
-    path('random-questions/', PracticeProblemListAPIVIew.as_view()),
+    path('practice-questions/', PracticeProblemListAPIVIew.as_view()),
     # 실전 문제 세트
     path('real-questions-set/', RealProblemSetAPIView.as_view()),
     # 실전 문제 리스트
