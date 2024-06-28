@@ -87,11 +87,13 @@ class UserRegisterSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['nickname', 'firebase_token']
+        fields = ['nickname', 'firebase_token', 'terms_agreed', 'marketing_agreed']
 
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
+        instance.terms_agreed = validated_data.get('terms_agreed', instance.terms_agreed)
         instance.firebase_token = validated_data.get('firebase_token', instance.firebase_token)
+        instance.marketing_agreed = validated_data.get('marketing_agreed', instance.marketing_agreed)
         instance.save()
         return instance
 
