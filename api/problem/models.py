@@ -72,7 +72,7 @@ class Problem(models.Model):
     type = models.CharField(choices=TypeChoices.choices, max_length=1, blank=True)
     region = models.ForeignKey(Region, verbose_name='지역', null=True, on_delete=models.SET_NULL)
     big_subject = models.ForeignKey(BigSubject, verbose_name='대주제', null=True, on_delete=models.SET_NULL)
-    small_subject = models.ManyToManyField(SmallSubject, verbose_name='소주제')
+    small_subject = models.ManyToManyField(SmallSubject, verbose_name='소주제', related_name='problem_small_subjects')
     presentation = models.TextField(verbose_name='제시문', null=True, blank=True)
     question = models.TextField(verbose_name='문제', null=True, blank=True)
     answer = models.TextField(verbose_name='정답', null=True, blank=True)

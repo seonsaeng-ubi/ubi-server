@@ -1,6 +1,7 @@
 from .models import BigSubject, SmallSubject, Region, ProblemSet, Problem
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
+import random
 
 
 # 대주제
@@ -30,7 +31,19 @@ class ProblemListSerializer(serializers.ModelSerializer):
     type = serializers.CharField(read_only=True, source='get_type_display')
     region = serializers.SerializerMethodField(read_only=True)
     big_subject = serializers.StringRelatedField(many=False, read_only=True)
-    small_subject = serializers.StringRelatedField(many=True, read_only=True)
+
+    class ProblemSmallSubjectSerializer(serializers.ModelSerializer):
+        color = serializers.SerializerMethodField(read_only=True)
+
+        class Meta:
+            model = SmallSubject
+            fields = ['id', 'title', 'color']
+
+        def get_color(self, obj):
+            chars = '0123456789ABCDEF'
+            return '0xff' + ''.join(random.sample(chars, 6))
+
+    small_subject = ProblemSmallSubjectSerializer(many=True, read_only=True, source='problem_small_subjects')
 
     class Meta:
         model = Problem
@@ -40,7 +53,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
     def get_is_scrapped(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
-            return user in obj.like_users.all()
+            return user in obj.scrapped_users.all()
         else:
             return False
 
