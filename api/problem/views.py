@@ -108,20 +108,19 @@ class ScrappedProblemListAPIView(ListAPIView):
         problems = Problem.objects.all().prefetch_related('scrapped_users', 'small_subject', 'big_subject')
         if big_subject_id == 0:
             problem_list = problems.filter(
-                scrapped_users__in=self.request.user
+                scrapped_users__in=[self.request.user.id]
             )
             return problem_list
         else:
             if small_subject_id == 0:
                 problem_list = problems.filter(
-                    scrapped_users__in=self.request.user,
+                    scrapped_users__in=[self.request.user.id],
                     big_subject_id=big_subject_id
                 )
                 return problem_list
             else:
-                small_subject = SmallSubject.objects.get(id=small_subject_id)
                 problem_list = problems.filter(
-                    scrapped_users__in=self.request.user,
-                    small_subject__in=small_subject,
+                    scrapped_users__in=[self.request.user.id],
+                    small_subject__in=[small_subject_id]
                 )
                 return problem_list
