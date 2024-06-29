@@ -25,6 +25,7 @@ class RegionAPIView(ListAPIView):
 # 스크랩 취소 / 하기
 class ScrapUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = ProblemUpdateSerializer
+    permission_classes = [IsAuthenticated]
     queryset = Problem.objects.all()
     allowed_methods = ['put', 'get']
     lookup_field = 'pk'
@@ -59,7 +60,7 @@ class PracticeProblemListAPIVIew(ListAPIView):
 # 실전 문제셋 (지역별 필터링)
 class RealProblemSetAPIView(ListAPIView):
     serializer_class = RealProblemSetSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         region = int(self.request.query_params.get('region', '1'))
@@ -83,7 +84,7 @@ class ProblemDetailAPIView(ListAPIView):
 # 실전 문제 리스트
 class RealProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
