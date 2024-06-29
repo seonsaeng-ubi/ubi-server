@@ -36,7 +36,7 @@ class ScrapUpdateAPIView(RetrieveUpdateAPIView):
 # 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
 class PracticeProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     model = Problem
 
