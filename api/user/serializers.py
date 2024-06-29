@@ -73,7 +73,7 @@ class UserRegisterSerializer(serializers.Serializer):
         user, created = User.objects.get_or_create(email=email, defaults={'password': make_password(password)})
 
         if created:
-            user_profile = Profile.objects.create(user=user, nickname='용감한 거북이')
+            user_profile = Profile.objects.create(user=user, nickname='')
             user_profile.save()
 
         refresh = RefreshToken.for_user(user)

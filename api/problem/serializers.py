@@ -25,7 +25,7 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 
-# 문제 리스트
+# 문제 리스트, 문제 디테일까지.
 class ProblemListSerializer(serializers.ModelSerializer):
     is_scrapped = serializers.SerializerMethodField(read_only=True)
     type = serializers.CharField(read_only=True, source='get_type_display')

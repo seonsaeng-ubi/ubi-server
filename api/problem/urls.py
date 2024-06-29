@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import SubjectAPIView, RegionAPIView, PracticeProblemListAPIVIew, RealProblemSetAPIView, \
-    RealProblemListAPIVIew, ScrapUpdateAPIView, ScrappedProblemListAPIView
+    RealProblemListAPIVIew, ScrapUpdateAPIView, ScrappedProblemListAPIView, ProblemDetailAPIView
 
 urlpatterns = [
     path('regions/', RegionAPIView.as_view()),
@@ -14,5 +14,7 @@ urlpatterns = [
     # 오답노트 문제 리스트
     path('scrapped-questions/', ScrappedProblemListAPIView.as_view()),
     # 스크랩 / 해제
-    path('update/<int:pk>/', ScrapUpdateAPIView.as_view())
+    path('update/<int:pk>/', ScrapUpdateAPIView.as_view()),
+    # 문제 상세
+    path('detail/<int:pk>/', ProblemDetailAPIView.as_view())
 ]

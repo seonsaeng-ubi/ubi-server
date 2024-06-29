@@ -1,7 +1,7 @@
 from .serializers import BigSubjectSerializer, RegionSerializer, RealProblemSetSerializer, \
     ProblemListSerializer, ProblemUpdateSerializer
 from .models import BigSubject, Region, ProblemSet, Problem, SmallSubject
-from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from ..utils import StandardResultsSetPagination
 
@@ -67,6 +67,17 @@ class RealProblemSetAPIView(ListAPIView):
             region_id=region,
             type='A'
         ).prefetch_related('problem_problem_set', 'region')
+
+
+# 문제 디테일 (지역별 필터링)
+class ProblemDetailAPIView(ListAPIView):
+    serializer_class = ProblemListSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Problem.objects.all().prefetch_related('scrapped_users')
+    lookup_field = 'pk'
+
+    def get_object(self):
+        return Problem.objects.get(id=self.kwargs['pk'])
 
 
 # 실전 문제 리스트
