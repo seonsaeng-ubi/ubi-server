@@ -87,9 +87,10 @@ class RealProblemListAPIVIew(ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        problem_set = int(self.request.query_params.get('problem_set', '1'))
+        problem_set = int(self.request.query_params.get('set'))
+        instance = ProblemSet.objects.get(id=problem_set)
         problems = Problem.objects.filter(
-            problem_set_id=problem_set
+            problem_set=instance
         ).prefetch_related('problem_set')
         return problems
 

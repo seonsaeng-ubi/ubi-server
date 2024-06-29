@@ -9,5 +9,4 @@ urlpatterns = [
     path('email-login/', UserRegisterView.as_view()),
     path('email-signup/', UserRegisterView.as_view()),
     path('profile/', ProfileDetailUpdateView.as_view()),
-    # path('update/', UserDetailUpdateView.as_view()),
 ]

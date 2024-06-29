@@ -43,12 +43,12 @@ class ProblemListSerializer(serializers.ModelSerializer):
             chars = '0123456789ABCDEF'
             return '0xff' + ''.join(random.sample(chars, 6))
 
-    small_subject = ProblemSmallSubjectSerializer(many=True, read_only=True, source='problem_small_subjects')
+    small_subjects = ProblemSmallSubjectSerializer(many=True, read_only=True, source='small_subject')
 
     class Meta:
         model = Problem
         fields = ['id', 'title', 'number', 'type', 'region', 'big_subject',
-                  'small_subject', 'presentation', 'question', 'answer', 'is_scrapped']
+                  'small_subjects', 'presentation', 'question', 'answer', 'is_scrapped']
 
     def get_is_scrapped(self, obj):
         user = self.context['request'].user
@@ -77,6 +77,7 @@ class RealProblemSetSerializer(serializers.ModelSerializer):
 
 # 문제 스크랩 / 해제
 class ProblemUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
     is_scrapped = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -94,7 +95,7 @@ class ProblemUpdateSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if not user.is_authenticated:
             return ValidationError({'error_msg': '스크랩을 하려면 로그인 해야 합니다.'})
-        if user in instance.like_users.all():
+        if user in instance.scrapped_users.all():
             instance.scrapped_users.remove(user)
         else:
             instance.scrapped_users.add(user)

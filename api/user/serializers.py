@@ -92,8 +92,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
         instance.terms_agreed = validated_data.get('terms_agreed', instance.terms_agreed)
-        instance.firebase_token = validated_data.get('firebase_token', instance.firebase_token)
-        instance.marketing_agreed = validated_data.get('marketing_agreed', instance.marketing_agreed)
+        instance.firebase_token = bool(validated_data.get('firebase_token', instance.firebase_token))
+        instance.marketing_agreed = bool(validated_data.get('marketing_agreed', instance.marketing_agreed))
         instance.save()
         return instance
 
