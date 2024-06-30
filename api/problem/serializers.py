@@ -74,6 +74,14 @@ class RealProblemSetSerializer(serializers.ModelSerializer):
         model = ProblemSet
         fields = ['id', 'title', 'description', 'problems']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        problem_model = instance.problem_problem_set
+        representation['conception'] = problem_model.filter(type='A').count()
+        representation['immediate'] = problem_model.filter(type='B').count()
+        representation['additional'] = problem_model.filter(type='C').count()
+        return representation
+
 
 # 문제 스크랩 / 해제
 class ProblemUpdateSerializer(serializers.ModelSerializer):
