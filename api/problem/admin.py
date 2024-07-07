@@ -1,6 +1,5 @@
 from api.problem.models import ProblemSet, Region, BigSubject, SmallSubject, Problem, Summernote
 from django_summernote.admin import SummernoteModelAdmin
-from django.utils.safestring import mark_safe
 from django.contrib import admin
 from django import forms
 import re
@@ -41,7 +40,7 @@ class ProblemAdmin(SummernoteModelAdmin):
     list_display_links = ('title',)
     list_filter = ['title']
     search_fields = ('title', 'user',)
-    summernote_fields = ('presentation', )
+    summernote_fields = []
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)

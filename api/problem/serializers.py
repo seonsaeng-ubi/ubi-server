@@ -48,7 +48,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = ['id', 'title', 'number', 'type', 'region', 'big_subject',
-                  'small_subjects', 'presentation', 'question', 'answer', 'is_scrapped']
+                  'small_subjects', 'presentation', 'question', 'answer', 'is_scrapped', 'presentation_image']
 
     def get_is_scrapped(self, obj):
         user = self.context['request'].user

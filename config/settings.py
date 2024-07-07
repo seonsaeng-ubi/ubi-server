@@ -32,6 +32,7 @@ DJANGO_APPS = [
 LOCAL_APPS = [
     'api.user.apps.UserConfig',
     'api.terms.apps.TermsConfig',
+    'api.stats.apps.StatsConfig',
     'api.logger.apps.LoggerConfig',
     'api.problem.apps.ProblemConfig',
     'api.notification.apps.NotificationConfig',
@@ -230,7 +231,7 @@ MAILGUN_API_KEY=os.getenv('MAILGUN_KEY')
 
 # SUMMERNOTE
 SUMMERNOTE_CONFIG = {
-    'attachment_model': 'problem.Summernote',
+    # 'attachment_model': 'problem.Summernote',
     'iframe': True,
 }
 
