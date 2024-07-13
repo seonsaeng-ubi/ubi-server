@@ -4,6 +4,7 @@ from .models import BigSubject, Region, ProblemSet, Problem, SmallSubject
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from ..utils import StandardResultsSetPagination
+from rest_framework.response import Response
 
 
 class SubjectAPIView(ListAPIView):
@@ -44,17 +45,29 @@ class PracticeProblemListAPIVIew(ListAPIView):
     def get_queryset(self):
         region = int(self.request.query_params.get('region', '1'))
         type = self.request.query_params.get('type', 'A')
-        random = bool(self.request.query_params.get('random', 'False'))
         problems = Problem.objects.filter(
             region_id=region,
             type=type,
             problem_set__type='P',
-        ).prefetch_related('problem_set', 'region')
+        )
+        return problems
 
-        if random is True:
-            return sorted(list(problems), key=lambda x: hash((self.request.user.id, x.id)))
-        else:
-            return problems
+
+class RandomPracticeProblemListAPIVIew(ListAPIView):
+    serializer_class = ProblemListSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    model = Problem
+
+    def get_queryset(self):
+        region = int(self.request.query_params.get('region', '1'))
+        type = self.request.query_params.get('type', 'A')
+        problems = Problem.objects.filter(
+            region_id=region,
+            type=type,
+            problem_set__type='P',
+        )
+        return sorted(list(problems), key=lambda x: hash((self.request.user.id, x.id)))
 
 
 # 실전 문제셋 (지역별 필터링)
@@ -71,7 +84,7 @@ class RealProblemSetAPIView(ListAPIView):
 
 
 # 문제 디테일 (지역별 필터링)
-class ProblemDetailAPIView(ListAPIView):
+class ProblemDetailAPIView(RetrieveAPIView):
     serializer_class = ProblemListSerializer
     permission_classes = [IsAuthenticated]
     queryset = Problem.objects.all().prefetch_related('scrapped_users')

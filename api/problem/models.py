@@ -77,7 +77,9 @@ class Problem(models.Model):
     question = models.TextField(verbose_name='문제', null=True, blank=True)
     answer = models.TextField(verbose_name='정답', null=True, blank=True)
     scrapped_users = models.ManyToManyField(User, related_name='scrapped_problems', verbose_name='이 문제를 스크랩한 사람들')
-    presentation_image = models.ImageField(null=True, blank=True, verbose_name='제시문 이미지')
+    height = models.FloatField(null=True, blank=True, verbose_name='사진 높이')
+    width = models.FloatField(null=True, blank=True, verbose_name='사진 넓이')
+    presentation_image = models.ImageField(null=True, blank=True, verbose_name='제시문 이미지', height_field='height', width_field='width')
 
     def __str__(self):
         return str(self.title)

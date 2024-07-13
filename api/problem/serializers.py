@@ -31,6 +31,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
     type = serializers.CharField(read_only=True, source='get_type_display')
     region = serializers.SerializerMethodField(read_only=True)
     big_subject = serializers.StringRelatedField(many=False, read_only=True)
+    size = serializers.SerializerMethodField(read_only=True)
 
     class ProblemSmallSubjectSerializer(serializers.ModelSerializer):
         color = serializers.SerializerMethodField(read_only=True)
@@ -47,8 +48,8 @@ class ProblemListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Problem
-        fields = ['id', 'title', 'number', 'type', 'region', 'big_subject',
-                  'small_subjects', 'presentation', 'question', 'answer', 'is_scrapped', 'presentation_image']
+        fields = ['id', 'title', 'number', 'type', 'region', 'big_subject', 'small_subjects',
+                  'presentation', 'question', 'answer', 'is_scrapped', 'presentation_image', 'size']
 
     def get_is_scrapped(self, obj):
         user = self.context['request'].user
@@ -59,6 +60,13 @@ class ProblemListSerializer(serializers.ModelSerializer):
 
     def get_region(self, obj):
         return obj.region.title
+
+    def get_size(self, obj):
+        try:
+            width, height = obj.width, obj.height
+            return {'width': width, 'height': height}
+        except:
+            return {'width': None, 'height': None}
 
 
 # 실전 문제 세트
