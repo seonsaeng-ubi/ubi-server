@@ -93,7 +93,7 @@ class UserRegisterSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    marketing_agreed_at = serializers.BooleanField(read_only=True)
+    marketing_agreed_at = serializers.CharField(read_only=True)
 
     class Meta:
         model = Profile
@@ -108,7 +108,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
         instance.terms_agreed = validated_data.get('terms_agreed', instance.terms_agreed)
-        instance.firebase_token = bool(validated_data.get('firebase_token', instance.firebase_token))
+        instance.firebase_token = validated_data.get('firebase_token', instance.firebase_token)
         if instance.marketing_agreed != bool(validated_data.get('marketing_agreed', instance.marketing_agreed)):
             instance.marketing_agreed_at = datetime.datetime.now()
         instance.marketing_agreed = bool(validated_data.get('marketing_agreed', instance.marketing_agreed))

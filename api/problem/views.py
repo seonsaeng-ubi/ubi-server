@@ -226,4 +226,4 @@ class SearchProblem(ListAPIView):
 
     def get_queryset(self):
         number = self.request.query_params.get('number', '  ')
-        return Problem.objects.filter(number__startswith=number)
+        return Problem.objects.filter(number__startswith=number).order_by('id')
