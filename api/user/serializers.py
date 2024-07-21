@@ -1,3 +1,4 @@
+import datetime
 import random
 import hashlib
 from django.db import transaction
@@ -19,6 +20,7 @@ class UserSocialLoginSerializer(serializers.Serializer):
     code = serializers.CharField(write_only=True)
     email = serializers.CharField(write_only=True)
     nickname = serializers.CharField(write_only=True)
+    firebase_token = serializers.CharField(write_only=True)
     social_type = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
@@ -26,6 +28,7 @@ class UserSocialLoginSerializer(serializers.Serializer):
         email = attrs['email']
         nickname = attrs['nickname']
         social_type = attrs['social_type']
+        firebase_token = attrs['firebase_token']
 
         if social_type not in SocialKindChoices:
             raise ValidationError({'kind': '지원하지 않는 소셜 타입입니다.'})
@@ -38,10 +41,15 @@ class UserSocialLoginSerializer(serializers.Serializer):
         email = validated_data['email']
         nickname = validated_data['nickname']
         social_type = validated_data['social_type']
+        firebase_token = validated_data['firebase_token']
         user, created = User.objects.get_or_create(email=email, defaults={'password': make_password(None)})
 
         if created:
-            user_profile = Profile.objects.create(user=user, nickname=nickname, kind=social_type, code=code)
+            user_profile = Profile.objects.create(user=user, nickname=nickname, kind=social_type, code=code, firebase_token=firebase_token)
+            user_profile.save()
+        else:
+            user_profile = Profile.objects.get(user=user)
+            user_profile.firebase_token = firebase_token
             user_profile.save()
 
         refresh = RefreshToken.for_user(user)
@@ -85,14 +93,24 @@ class UserRegisterSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    marketing_agreed_at = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = Profile
-        fields = ['nickname', 'firebase_token', 'terms_agreed', 'marketing_agreed']
+        fields = ['nickname', 'firebase_token', 'terms_agreed', 'marketing_agreed', 'marketing_agreed_at']
+
+    def validate(self, attrs):
+        terms_agreed = attrs.get('terms_agreed')
+        if bool(terms_agreed) is False:
+            raise ValidationError({'error': ['약관 동의가 필요합니다.']})
+        return attrs
 
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
         instance.terms_agreed = validated_data.get('terms_agreed', instance.terms_agreed)
         instance.firebase_token = bool(validated_data.get('firebase_token', instance.firebase_token))
+        if instance.marketing_agreed != bool(validated_data.get('marketing_agreed', instance.marketing_agreed)):
+            instance.marketing_agreed_at = datetime.datetime.now()
         instance.marketing_agreed = bool(validated_data.get('marketing_agreed', instance.marketing_agreed))
         instance.save()
         return instance

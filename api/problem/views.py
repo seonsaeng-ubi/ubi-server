@@ -216,3 +216,14 @@ class AllScrappedProblemListAPIView(ListAPIView):
                     small_subject__in=[small_subject_id]
                 )
                 return problem_list
+
+
+# 마이페이지 검색
+class SearchProblem(ListAPIView):
+    serializer_class = ProblemListSerializer
+    permission_classes = [IsAuthenticated]
+    model = Problem
+
+    def get_queryset(self):
+        number = self.request.query_params.get('number', '  ')
+        return Problem.objects.filter(number__startswith=number)

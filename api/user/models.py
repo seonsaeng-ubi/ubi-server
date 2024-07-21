@@ -68,6 +68,7 @@ class Profile(models.Model):
     firebase_token = models.CharField(max_length=1024, verbose_name=_('파이어베이스 토큰'), null=True, blank=True)
     terms_agreed = models.BooleanField(verbose_name=_('약관 동의'), default=False)
     marketing_agreed = models.BooleanField(verbose_name=_('마케팅 동의'), default=False)
+    marketing_agreed_at = models.DateTimeField(verbose_name=_('마케팅 동의 / 취소 일자'), null=True, blank=True)
 
     class Meta:
         verbose_name = '프로필'

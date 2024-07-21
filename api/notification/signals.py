@@ -12,14 +12,14 @@ def send_firebase(sender, instance, created, *args, **kwargs):
         profiles = Profile.objects.all().select_related('user')
 
         for profile in profiles:
-            # message = messaging.Message(
-            #     notification=messaging.Notification(
-            #         title=instance.title,
-            #         body=instance.body,
-            #     ),
-            #     token=profile.firebase_token,
-            # )
-            # response = messaging.send(message)
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=instance.title,
+                    body=instance.body,
+                ),
+                token=profile.firebase_token,
+            )
+            response = messaging.send(message)
 
             firebase_log = FirebaseLog.objects.create(
                 to=profile.user.email,
