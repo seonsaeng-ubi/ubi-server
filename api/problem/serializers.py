@@ -1,7 +1,6 @@
-from .models import BigSubject, SmallSubject, Region, ProblemSet, Problem
+from .models import BigSubject, SmallSubject, Region, Problem, TestSet, RealRegion
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
-import random
 
 
 # 대주제
@@ -25,6 +24,18 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 
+# 소주제
+class ProblemSmallSubjectSerializer(serializers.ModelSerializer):
+    color = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = SmallSubject
+        fields = ['id', 'title', 'color']
+
+    def get_color(self, obj):
+        return obj.color
+
+
 # 문제 리스트, 문제 디테일까지.
 class ProblemListSerializer(serializers.ModelSerializer):
     is_scrapped = serializers.SerializerMethodField(read_only=True)
@@ -32,24 +43,44 @@ class ProblemListSerializer(serializers.ModelSerializer):
     region = serializers.SerializerMethodField(read_only=True)
     big_subject = serializers.StringRelatedField(many=False, read_only=True)
     size = serializers.SerializerMethodField(read_only=True)
-
-    class ProblemSmallSubjectSerializer(serializers.ModelSerializer):
-        color = serializers.SerializerMethodField(read_only=True)
-
-        class Meta:
-            model = SmallSubject
-            fields = ['id', 'title', 'color']
-
-        def get_color(self, obj):
-            chars = '0123456789ABCDEF'
-            return '0xff' + ''.join(random.sample(chars, 6))
-
-    small_subjects = ProblemSmallSubjectSerializer(many=True, read_only=True, source='small_subject')
+    presentation_image = serializers.SerializerMethodField(read_only=True)
+    small_subjects = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Problem
         fields = ['id', 'title', 'number', 'type', 'region', 'big_subject', 'small_subjects',
                   'presentation', 'question', 'answer', 'is_scrapped', 'presentation_image', 'size']
+
+    def get_small_subjects(self, obj):
+        temp_data = list(ProblemSmallSubjectSerializer(obj.small_subject, many=True).data)
+
+        # 문제 유형
+        if obj.problem_type == 'P':
+            temp_data.append({'id': 1, 'title': '연습문제', 'color': '0xff#65b1e5'})
+        else:
+            temp_data.append({'id': 2, 'title': '실전문제', 'color': '0xff#65b1e5'})
+
+        # 문제 유형
+        if obj.type == 'A':
+            temp_data.append({'id': 3, 'title': '구상형', 'color': '0xff#65b1e5'})
+        elif obj.type == 'B':
+            temp_data.append({'id': 4, 'title': '즉답형', 'color': '0xff#65b1e5'})
+        elif obj.type == 'C':
+            temp_data.append({'id': 5, 'title': '추가질문', 'color': '0xff#65b1e5'})
+
+        # 지역 기반
+        if obj.region.title == '서울':
+            temp_data.append({'id': 6, 'title': '서울', 'color': '0xff#65b1e5'})
+        elif obj.region.title == '경기':
+            temp_data.append({'id': 7, 'title': '경기', 'color': '0xff#65b1e5'})
+        elif obj.region.title == '세종':
+            temp_data.append({'id': 8, 'title': '세종', 'color': '0xff#65b1e5'})
+        elif obj.region.title == '평가원':
+            temp_data.append({'id': 9, 'title': '평가원', 'color': '0xff#65b1e5'})
+        else:
+            temp_data.append({'id': 9, 'title': '공통', 'color': '0xff#65b1e5'})
+
+        return temp_data
 
     def get_is_scrapped(self, obj):
         user = self.context['request'].user
@@ -68,27 +99,12 @@ class ProblemListSerializer(serializers.ModelSerializer):
         except:
             return {'width': None, 'height': None}
 
-
-# 실전 문제 세트
-class RealProblemSetSerializer(serializers.ModelSerializer):
-    class SmallProblemSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = Problem
-            fields = ['id', 'title']
-
-    problems = SmallProblemSerializer(many=True, read_only=True, source='problem_problem_set')
-
-    class Meta:
-        model = ProblemSet
-        fields = ['id', 'title', 'description', 'problems']
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        problem_model = instance.problem_problem_set
-        representation['conception'] = problem_model.filter(type='A').count()
-        representation['immediate'] = problem_model.filter(type='B').count()
-        representation['additional'] = problem_model.filter(type='C').count()
-        return representation
+    def get_presentation_image(self, obj):
+        if obj.image_url is None:
+            if obj.presentation_image is not None:
+                return obj.presentation_image.url
+            return None
+        return obj.image_url
 
 
 # 문제 스크랩 / 해제
@@ -116,3 +132,10 @@ class ProblemUpdateSerializer(serializers.ModelSerializer):
         else:
             instance.scrapped_users.add(user)
         return instance
+
+
+# 실전 모의고사 설명
+class TestSetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestSet
+        fields = ['id', 'description', 'time_description']

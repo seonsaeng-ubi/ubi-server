@@ -1,24 +1,17 @@
 from django.urls import path
-from .views import SubjectAPIView, RegionAPIView, PracticeProblemListAPIVIew, RandomPracticeProblemListAPIVIew, \
-    RealProblemSetAPIView, RealProblemListAPIVIew, ScrapUpdateAPIView, ScrappedProblemListAPIView, \
+from .views import SubjectAPIView, RegionAPIView, ScrapUpdateAPIView, ScrappedProblemListAPIView, \
     ProblemDetailAPIView, AllRandomPracticeProblemListAPIVIew, AllPracticeProblemListAPIVIew, \
-    AllRealProblemListAPIVIew, AllScrappedProblemListAPIView, SearchProblem
+    NewRealProblemListAPIView, AllScrappedProblemListAPIView, SearchProblem, TestSetView
 
 urlpatterns = [
     path('regions/', RegionAPIView.as_view()),
     path('subjects/', SubjectAPIView.as_view()),
     # 연습 문제 리스트
-    path('practice-questions/', PracticeProblemListAPIVIew.as_view()),
-    path('practice-questions/random/', RandomPracticeProblemListAPIVIew.as_view()),
-    # 연습 문제 리스트, 페이지네이션 제외
     path('practice-questions/all/', AllPracticeProblemListAPIVIew.as_view()),
+    # 랜덤 연습 문제 리스트
     path('practice-questions/random/all/', AllRandomPracticeProblemListAPIVIew.as_view()),
-    # 실전 문제 세트
-    path('real-questions-set/', RealProblemSetAPIView.as_view()),
-    # 실전 문제 리스트
-    path('real-questions/', RealProblemListAPIVIew.as_view()),
-    # 실전 문제 리스트, 페이지네이션 제외
-    path('real-questions/all/', AllRealProblemListAPIVIew.as_view()),
+    # 기출 문제 리스트, 페이지네이션 제외
+    path('real-questions/all/', NewRealProblemListAPIView.as_view()),
     # 오답노트 문제 리스트
     path('scrapped-questions/', ScrappedProblemListAPIView.as_view()),
     # 오답노트 문제 리스트, 페이지네이션 제외
@@ -28,5 +21,7 @@ urlpatterns = [
     # 문제 상세
     path('detail/<int:pk>/', ProblemDetailAPIView.as_view()),
     # 마이페이지 검색
-    path('mypage/', SearchProblem.as_view())
+    path('mypage/', SearchProblem.as_view()),
+    # 실전 모의고사 설명
+    path('test-description/', TestSetView.as_view())
 ]

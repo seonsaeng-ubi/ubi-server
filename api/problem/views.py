@@ -1,9 +1,11 @@
-from .serializers import BigSubjectSerializer, RegionSerializer, RealProblemSetSerializer, \
-    ProblemListSerializer, ProblemUpdateSerializer
-from .models import BigSubject, Region, ProblemSet, Problem
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
+from .serializers import BigSubjectSerializer, RegionSerializer, \
+    ProblemListSerializer, ProblemUpdateSerializer, TestSetSerializer
+from .models import BigSubject, Region, Problem, TestSet, RealRegion
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from ..utils import StandardResultsSetPagination
+from rest_framework.views import APIView
+from django.db.models import Q
 
 
 class SubjectAPIView(ListAPIView):
@@ -19,7 +21,7 @@ class RegionAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        return Region.objects.all()
+        return Region.objects.all()[:4]
 
 
 # 스크랩 취소 / 하기
@@ -35,89 +37,68 @@ class ScrapUpdateAPIView(RetrieveUpdateAPIView):
 
 
 # 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
-class PracticeProblemListAPIVIew(ListAPIView):
-    serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-    model = Problem
-
-    def get_queryset(self):
-        region = int(self.request.query_params.get('region', '1'))
-        type = self.request.query_params.get('type', 'A')
-        problems = Problem.objects.filter(
-            region_id=region,
-            type=type,
-            problem_set__type='P',
-        )
-        return problems
-
-
-# 페이지네이션 제외 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
 class AllPracticeProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
     permission_classes = [IsAuthenticated]
     model = Problem
 
     def get_queryset(self):
-        region = int(self.request.query_params.get('region', '1'))
+        # 지역 필터링
+        regions = Region.objects.all()
+        pyeonggawon = regions.get(title='평가원')
+        gongtong = regions.get(title='공통')
+
+        region = regions.get(id=int(self.request.query_params.get('region', '1')))
+
+        # 문제 타입 필터링 (구상형, 즉답형, 추가 질문)
         type = self.request.query_params.get('type', 'A')
-        problems = Problem.objects.filter(
-            region_id=region,
-            type=type,
-            problem_set__type='P',
-        )
+
+        # 평가원일 경우
+        if region.id == pyeonggawon.id:
+            problems = Problem.objects.filter(
+                Q(region=region) & Q(type=type) & Q(problem_type='P')
+            )
+
+        # 그 외의 경우
+        else:
+            problems = Problem.objects.filter(
+                (Q(region=region) | Q(region=gongtong)) & Q(type=type) & Q(problem_type='P')
+            )
         return problems
 
 
 # 랜덤 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
-class RandomPracticeProblemListAPIVIew(ListAPIView):
-    serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-    model = Problem
-
-    def get_queryset(self):
-        region = int(self.request.query_params.get('region', '1'))
-        type = self.request.query_params.get('type', 'A')
-        problems = Problem.objects.filter(
-            region_id=region,
-            type=type,
-            problem_set__type='P',
-        )
-        return sorted(list(problems), key=lambda x: hash((self.request.user.id, x.id)))
-
-
-# 페이지네이션 제외 랜덤 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
 class AllRandomPracticeProblemListAPIVIew(ListAPIView):
     serializer_class = ProblemListSerializer
     permission_classes = [IsAuthenticated]
     model = Problem
 
     def get_queryset(self):
-        region = int(self.request.query_params.get('region', '1'))
+        # 지역 필터링
+        regions = Region.objects.all()
+        pyeonggawon = regions.get(title='평가원')
+        gongtong = regions.get(title='공통')
+
+        region = regions.get(id=int(self.request.query_params.get('region', '1')))
+
+        # 문제 타입 필터링 (구상형, 즉답형, 추가 질문)
         type = self.request.query_params.get('type', 'A')
-        problems = Problem.objects.filter(
-            region_id=region,
-            type=type,
-            problem_set__type='P',
-        ).order_by('?')
-        return problems
+
+        # 평가원일 경우
+        if region.id == pyeonggawon.id:
+            problems = Problem.objects.filter(
+                Q(region=region) & Q(type=type) & Q(problem_type='P')
+            )
+
+        # 그 외의 경우
+        else:
+            problems = Problem.objects.filter(
+                (Q(region=region) | Q(region=gongtong)) & Q(type=type) & Q(problem_type='P')
+            )
+        return problems.order_by('?')
 
 
-# 실전 문제셋 (지역별 필터링)
-class RealProblemSetAPIView(ListAPIView):
-    serializer_class = RealProblemSetSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        region = int(self.request.query_params.get('region', '1'))
-        return ProblemSet.objects.filter(
-            region_id=region,
-            type='A'
-        ).prefetch_related('problem_problem_set', 'region')
-
-
-# 문제 디테일 (지역별 필터링)
+# 문제 디테일
 class ProblemDetailAPIView(RetrieveAPIView):
     serializer_class = ProblemListSerializer
     permission_classes = [IsAuthenticated]
@@ -128,33 +109,30 @@ class ProblemDetailAPIView(RetrieveAPIView):
         return Problem.objects.get(id=self.kwargs['pk'])
 
 
-# 실전 문제 리스트
-class RealProblemListAPIVIew(ListAPIView):
-    serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-
-    def get_queryset(self):
-        problem_set = int(self.request.query_params.get('set'))
-        instance = ProblemSet.objects.get(id=problem_set)
+# 새로운 기출문제 리스트 (연도별)
+class NewRealProblemListAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        # 지역 필터링 및 기출 출제 지역 가져오기
+        regions = Region.objects.all()
+        region = regions.get(id=int(self.request.query_params.get('region', '1')))
+        real_region = RealRegion.objects.get(title=region.title)
+        # 기출 출제 지역 바탕 필터링
         problems = Problem.objects.filter(
-            problem_set=instance
-        ).prefetch_related('problem_set')
-        return problems
+            Q(real_region=real_region) & Q(problem_type='A')
+        )
 
+        years = problems.objects.values_list('year', flat=True).reverse()
+        return_list = []
 
-# 실전 문제 리스트 / 페이지네이션 제외
-class AllRealProblemListAPIVIew(ListAPIView):
-    serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        problem_set = int(self.request.query_params.get('set'))
-        instance = ProblemSet.objects.get(id=problem_set)
-        problems = Problem.objects.filter(
-            problem_set=instance
-        ).prefetch_related('problem_set')
-        return problems
+        for year in years:
+            temp_problems = problems.filter(year=year)
+            serialized_temp_problems = ProblemListSerializer(data=temp_problems, many=True).data
+            return_list.append(
+                [
+                    {'year': year, 'problems': serialized_temp_problems}
+                ]
+            )
+        return return_list
 
 
 # 여기부터 오답노트 리스트
@@ -227,3 +205,62 @@ class SearchProblem(ListAPIView):
     def get_queryset(self):
         number = self.request.query_params.get('number', '  ')
         return Problem.objects.filter(number__startswith=number).order_by('id')
+
+
+# 실전 모의고사 설명
+class TestSetView(RetrieveAPIView):
+    serializer_class = TestSetSerializer
+    permission_classes = [AllowAny]
+    model = TestSet
+
+    def get_queryset(self):
+        region = self.request.query_params.get('region', 1)
+        return TestSet.objects.get(region_id=region)
+
+
+# 실전 모의고사 리스트
+class TestSetListView(ListAPIView):
+    serializer_class = ProblemListSerializer
+    permission_classes = [IsAuthenticated]
+    model = Problem
+
+    def get_queryset(self):
+        # 지역 필터링
+        regions = Region.objects.all()
+        seoul = regions.get(title='서울')
+        gyeonggi = regions.get(title='경기')
+        sejong = regions.get(title='세종')
+        pyeonggawon = regions.get(title='평가원')
+        gongtong = regions.get(title='공통')
+        region = regions.get(id=int(self.request.query_params.get('region', '1')))
+
+        # 공통이거나 특정 지역일 경우 우선 필터링
+        if region.id == pyeonggawon.id:
+            problems = Problem.objects.filter(region=region)
+        else:
+            problems = Problem.objects.filter(Q(region=region) | Q(region=gongtong))
+        # 서울일 경우
+        if region.id == seoul.id:
+            # 구상형 3문제, 즉답형 3, 추가 질문 2
+            conception = problems.filter(type='A').order_by('?')[:3]
+            immediate = problems.filter(type='B').order_by('?')[:3]
+            additional = problems.filter(type='C').order_by('?')[:2]
+            return conception | immediate | additional
+        # 경기일 경우
+        elif region.id == gyeonggi.id:
+            # 구상형 3문제, 즉답형 2
+            conception = problems.filter(type='A').order_by('?')[:3]
+            immediate = problems.filter(type='B').order_by('?')[:2]
+            return conception | immediate
+        # 세종일 경우
+        elif region.id == sejong.id:
+            # 구상형 3문제, 즉답형 2
+            conception = problems.filter(type='A').order_by('?')[:3]
+            immediate = problems.filter(type='B').order_by('?')[:2]
+            return conception | immediate
+        # 평가원일 경우
+        else:
+            # 구상형 3문제, 즉답형 1
+            conception = problems.filter(type='A').order_by('?')[:3]
+            immediate = problems.filter(type='B').order_by('?')[:1]
+            return conception | immediate
