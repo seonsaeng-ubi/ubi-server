@@ -101,7 +101,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
 
     def get_presentation_image(self, obj):
         if obj.image_url is None:
-            if obj.presentation_image is not None:
+            if obj.presentation_image:
                 return obj.presentation_image.url
             return None
         return obj.image_url

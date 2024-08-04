@@ -4,6 +4,8 @@ from .serializers import BigSubjectSerializer, RegionSerializer, \
 from .models import BigSubject, Region, Problem, TestSet, RealRegion
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from ..utils import StandardResultsSetPagination
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 from django.db.models import Q
 
@@ -121,18 +123,18 @@ class NewRealProblemListAPIView(APIView):
             Q(real_region=real_region) & Q(problem_type='A')
         )
 
-        years = problems.objects.values_list('year', flat=True).reverse()
+        years = list(set(problems.values_list('year', flat=True)))
+        years.reverse()
         return_list = []
 
         for year in years:
             temp_problems = problems.filter(year=year)
-            serialized_temp_problems = ProblemListSerializer(data=temp_problems, many=True).data
-            return_list.append(
-                [
-                    {'year': year, 'problems': serialized_temp_problems}
-                ]
-            )
-        return return_list
+            serialized_temp_problems = ProblemListSerializer(data=temp_problems, many=True, context={'request': request})
+            if serialized_temp_problems.is_valid():
+                pass
+            serialized_problems = serialized_temp_problems.data
+            return_list.append({'year': year, 'problems': serialized_problems})
+        return Response(return_list, status=HTTP_200_OK)
 
 
 # 여기부터 오답노트 리스트
@@ -212,9 +214,11 @@ class TestSetView(RetrieveAPIView):
     serializer_class = TestSetSerializer
     permission_classes = [AllowAny]
     model = TestSet
+    lookup_field = 'pk'
+    queryset = TestSet.objects.all()
 
-    def get_queryset(self):
-        region = self.request.query_params.get('region', 1)
+    def get_object(self):
+        region = self.kwargs['pk']
         return TestSet.objects.get(region_id=region)
 
 
