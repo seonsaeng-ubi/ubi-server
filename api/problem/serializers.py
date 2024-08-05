@@ -56,29 +56,29 @@ class ProblemListSerializer(serializers.ModelSerializer):
 
         # 문제 유형
         if obj.problem_type == 'P':
-            temp_data.append({'id': 1, 'title': '연습문제', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 1, 'title': '연습문제', 'color': '65b1e5'})
         else:
-            temp_data.append({'id': 2, 'title': '실전문제', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 2, 'title': '실전문제', 'color': '65b1e5'})
 
         # 문제 유형
         if obj.type == 'A':
-            temp_data.append({'id': 3, 'title': '구상형', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 3, 'title': '구상형', 'color': '65b1e5'})
         elif obj.type == 'B':
-            temp_data.append({'id': 4, 'title': '즉답형', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 4, 'title': '즉답형', 'color': '65b1e5'})
         elif obj.type == 'C':
-            temp_data.append({'id': 5, 'title': '추가질문', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 5, 'title': '추가질문', 'color': '65b1e5'})
 
         # 지역 기반
         if obj.region.title == '서울':
-            temp_data.append({'id': 6, 'title': '서울', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 6, 'title': '서울', 'color': '65b1e5'})
         elif obj.region.title == '경기':
-            temp_data.append({'id': 7, 'title': '경기', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 7, 'title': '경기', 'color': '65b1e5'})
         elif obj.region.title == '세종':
-            temp_data.append({'id': 8, 'title': '세종', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 8, 'title': '세종', 'color': '65b1e5'})
         elif obj.region.title == '평가원':
-            temp_data.append({'id': 9, 'title': '평가원', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 9, 'title': '평가원', 'color': '65b1e5'})
         else:
-            temp_data.append({'id': 9, 'title': '공통', 'color': '0xff#65b1e5'})
+            temp_data.append({'id': 9, 'title': '공통', 'color': '65b1e5'})
 
         return temp_data
 
