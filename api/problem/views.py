@@ -129,7 +129,8 @@ class NewRealProblemListAPIView(APIView):
 
         for year in years:
             temp_problems = problems.filter(year=year)
-            serialized_temp_problems = ProblemListSerializer(data=temp_problems, many=True, context={'request': request})
+            serialized_temp_problems = ProblemListSerializer(data=temp_problems, many=True,
+                                                             context={'request': request})
             if serialized_temp_problems.is_valid():
                 pass
             serialized_problems = serialized_temp_problems.data
@@ -145,55 +146,35 @@ class ScrappedProblemListAPIView(ListAPIView):
     model = Problem
 
     def get_queryset(self):
-        big_subject_id = int(self.request.query_params.get('big_subject', '0'))
-        small_subject_id = int(self.request.query_params.get('small_subject', '0'))
-        problems = Problem.objects.all().prefetch_related('scrapped_users', 'small_subject', 'big_subject')
+        big_subject_id = int(self.request.query_params.get('bigSubject', '0'))
+        small_subject_id = int(self.request.query_params.get('smallSubject', '0'))
+        problems = Problem.objects.prefetch_related('scrapped_users', 'big_subject', 'small_subject')
+        # 대주제 전체보기일 경우
         if big_subject_id == 0:
-            problem_list = problems.filter(
-                scrapped_users__in=[self.request.user.id]
-            )
-            return problem_list
+            # ㄹㅇ 전체보기일 경우
+            if small_subject_id == 0:
+                problem_list = problems.filter(
+                    scrapped_users__in=[self.request.user.id]
+                )
+                return problem_list
+            # 소주제만 선택할 경우
+            else:
+                problem_list = problems.filter(
+                    Q(scrapped_users__in=[self.request.user.id]) & Q(small_subject__in=[small_subject_id])
+                )
+                return problem_list
         else:
             if small_subject_id == 0:
                 problem_list = problems.filter(
-                    scrapped_users__in=[self.request.user.id],
-                    big_subject_id=big_subject_id
+                    Q(scrapped_users__in=[self.request.user.id]) &
+                    Q(big_subject_id=big_subject_id)
                 )
                 return problem_list
             else:
                 problem_list = problems.filter(
-                    scrapped_users__in=[self.request.user.id],
-                    small_subject__in=[small_subject_id]
-                )
-                return problem_list
-
-
-# 여기부터 오답노트 리스트 / 페이지네이션 제외
-class AllScrappedProblemListAPIView(ListAPIView):
-    serializer_class = ProblemListSerializer
-    permission_classes = [IsAuthenticated]
-    model = Problem
-
-    def get_queryset(self):
-        big_subject_id = int(self.request.query_params.get('big_subject', '0'))
-        small_subject_id = int(self.request.query_params.get('small_subject', '0'))
-        problems = Problem.objects.all().prefetch_related('scrapped_users', 'small_subject', 'big_subject')
-        if big_subject_id == 0:
-            problem_list = problems.filter(
-                scrapped_users__in=[self.request.user.id]
-            )
-            return problem_list
-        else:
-            if small_subject_id == 0:
-                problem_list = problems.filter(
-                    scrapped_users__in=[self.request.user.id],
-                    big_subject_id=big_subject_id
-                )
-                return problem_list
-            else:
-                problem_list = problems.filter(
-                    scrapped_users__in=[self.request.user.id],
-                    small_subject__in=[small_subject_id]
+                    Q(scrapped_users__in=[self.request.user.id]) &
+                    Q(big_subject_id=big_subject_id) &
+                    Q(small_subject__in=[small_subject_id])
                 )
                 return problem_list
 

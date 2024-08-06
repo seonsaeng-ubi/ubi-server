@@ -43,12 +43,22 @@ class RealRegionAdmin(admin.ModelAdmin):
 
 @admin.register(BigSubject)
 class BigSubjectAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('get_id', 'title',)
+
+    def get_id(self, obj):
+        return obj.id
+
+    get_id.short_description = 'ID'
 
 
 @admin.register(SmallSubject)
 class SmallSubjectAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('get_id', 'title',)
+
+    def get_id(self, obj):
+        return obj.id
+
+    get_id.short_description = 'ID'
 
 
 @admin.register(TestSet)

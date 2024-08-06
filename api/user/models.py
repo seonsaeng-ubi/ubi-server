@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.utils.translation import gettext_lazy as _
-from api.utils import FilenameChanger
 from django.db import models
 
 
@@ -60,11 +59,9 @@ class User(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField(max_length=32, verbose_name=_('닉네임'), null=True, blank=True)
-    # profile_image = models.ImageField(verbose_name=_('프로필 사진'), null=True, blank=True, upload_to=FilenameChanger('profile'))
     created_at = models.DateTimeField(verbose_name=_('생성 일자'), auto_now_add=True, null=True, blank=True)
     kind = models.CharField(max_length=32, verbose_name=_('종류'), null=True, blank=True)
     code = models.CharField(max_length=1024, verbose_name=_('SNS 고유 코드'), null=True, blank=True)
-    # points = models.PositiveIntegerField(default=0, verbose_name=_('포인트'))
     firebase_token = models.CharField(max_length=1024, verbose_name=_('파이어베이스 토큰'), null=True, blank=True)
     terms_agreed = models.BooleanField(verbose_name=_('약관 동의'), default=False)
     marketing_agreed = models.BooleanField(verbose_name=_('마케팅 동의'), default=False)
