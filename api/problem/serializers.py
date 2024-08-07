@@ -66,10 +66,8 @@ class ProblemListSerializer(serializers.ModelSerializer):
         # 문제 유형
         if obj.type == 'A':
             color2 = colors.get(title='구상형')
-            temp_data.append({'id': 3, 'title': '구상형', 'color': '65b1e5'})
         elif obj.type == 'B':
             color2 = colors.get(title='즉답형')
-            temp_data.append({'id': 4, 'title': '즉답형', 'color': '65b1e5'})
         elif obj.type == 'C':
             color2 = colors.get(title='추가질문')
         temp_data.append({'id': color2.id, 'title': color2.title, 'color': color2.color})
