@@ -1,4 +1,4 @@
-from api.problem.models import Region, BigSubject, SmallSubject, Problem, Summernote, TestSet, RealRegion
+from api.problem.models import Region, BigSubject, SmallSubject, Problem, Color, TestSet, RealRegion
 from django.contrib import admin
 
 
@@ -53,6 +53,16 @@ class BigSubjectAdmin(admin.ModelAdmin):
 
 @admin.register(SmallSubject)
 class SmallSubjectAdmin(admin.ModelAdmin):
+    list_display = ('get_id', 'title',)
+
+    def get_id(self, obj):
+        return obj.id
+
+    get_id.short_description = 'ID'
+
+
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
     list_display = ('get_id', 'title',)
 
     def get_id(self, obj):

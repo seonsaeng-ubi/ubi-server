@@ -122,3 +122,15 @@ class Summernote(summermodel.AbstractAttachment):
     class Meta:
         verbose_name = '첨부 이미지'
         verbose_name_plural = '첨부 이미지'
+
+
+class Color(models.Model):
+    title = models.CharField(max_length=128, verbose_name='제목', null=True, blank=True)
+    color = models.CharField(max_length=6, verbose_name='색상 코드', null=True, blank=True)
+
+    def __str__(self):
+        return str(self.title)
+
+    class Meta:
+        verbose_name = '색상'
+        verbose_name_plural = '색상'
