@@ -66,7 +66,7 @@ class AllPracticeProblemListAPIVIew(ListAPIView):
             problems = Problem.objects.filter(
                 (Q(region=region) | Q(region=gongtong)) & Q(type=type) & Q(problem_type='P')
             )
-        return problems
+        return problems.order_by('number')
 
 
 # 랜덤 연습 문제 / 지역 필터링, 구상 or 즉답형 필터링
@@ -121,7 +121,7 @@ class NewRealProblemListAPIView(APIView):
         # 기출 출제 지역 바탕 필터링
         problems = Problem.objects.filter(
             Q(real_region=real_region) & Q(problem_type='A')
-        )
+        ).order_by('number')
 
         years = list(set(problems.values_list('year', flat=True)))
         years.reverse()
@@ -148,7 +148,7 @@ class ScrappedProblemListAPIView(ListAPIView):
     def get_queryset(self):
         big_subject_id = int(self.request.query_params.get('bigSubject', '0'))
         small_subject_id = int(self.request.query_params.get('smallSubject', '0'))
-        problems = Problem.objects.prefetch_related('scrapped_users', 'big_subject', 'small_subject')
+        problems = Problem.objects.order_by('number').prefetch_related('scrapped_users', 'big_subject', 'small_subject')
         # 대주제 전체보기일 경우
         if big_subject_id == 0:
             # ㄹㅇ 전체보기일 경우
@@ -187,7 +187,7 @@ class SearchProblem(ListAPIView):
 
     def get_queryset(self):
         number = self.request.query_params.get('number', '  ')
-        return Problem.objects.filter(number__startswith=number).order_by('id')
+        return Problem.objects.filter(number__startswith=number).order_by('number')
 
 
 # 실전 모의고사 설명

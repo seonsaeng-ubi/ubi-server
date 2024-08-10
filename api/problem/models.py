@@ -77,7 +77,7 @@ class Problem(models.Model):
         IMMEDIATE = 'B', '즉답'
         ADDITIONAL = 'C', '추가질문'
 
-    number = models.CharField(max_length=32, verbose_name='고유 번호', null=True, blank=True)
+    number = models.IntegerField(verbose_name='고유 번호 숫자', null=True, blank=True)
     title = models.CharField(max_length=512, verbose_name='제목', null=True, blank=True)
     type = models.CharField(choices=TypeChoices.choices, max_length=1, blank=True)
     region = models.ForeignKey(Region, verbose_name='지역', null=True, on_delete=models.SET_NULL)
@@ -86,13 +86,12 @@ class Problem(models.Model):
     presentation = models.TextField(verbose_name='제시문', null=True, blank=True)
     question = models.TextField(verbose_name='문제', null=True, blank=True)
     answer = models.TextField(verbose_name='정답', null=True, blank=True)
-    scrapped_users = models.ManyToManyField(User, related_name='scrapped_problems', verbose_name='이 문제를 스크랩한 사람들')
+    scrapped_users = models.ManyToManyField(User, related_name='scrapped_problems', verbose_name='이 문제를 스크랩한 사람들', blank=True)
     height = models.FloatField(null=True, blank=True, verbose_name='사진 높이')
     width = models.FloatField(null=True, blank=True, verbose_name='사진 넓이')
     presentation_image = models.ImageField(null=True, blank=True, verbose_name='제시문 이미지', height_field='height', width_field='width')
     image_url = models.URLField(null=True, blank=True, verbose_name='사진 url 링크')
     has_image = models.BooleanField(default=False)
-    # color = models.CharField(max_length=10, verbose_name='색상', null=True, blank=True)
     year = models.IntegerField(verbose_name='연도', null=True, blank=True)
     real_region = models.ForeignKey(RealRegion, verbose_name='기출 출제 지역', null=True, blank=True, on_delete=models.SET_NULL)
     writer = models.CharField(max_length=64, verbose_name='출제자', null=True, blank=True)

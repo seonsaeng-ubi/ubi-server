@@ -4,7 +4,7 @@ from django.contrib import admin
 
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
-    list_display = ('get_id', 'title', 'number',)
+    list_display = ('get_id', 'title', 'number')
     list_display_links = ('title',)
     list_filter = ['title']
     search_fields = ('title', 'user',)

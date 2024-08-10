@@ -45,11 +45,15 @@ class ProblemListSerializer(serializers.ModelSerializer):
     size = serializers.SerializerMethodField(read_only=True)
     presentation_image = serializers.SerializerMethodField(read_only=True)
     small_subjects = serializers.SerializerMethodField(read_only=True)
+    number = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Problem
         fields = ['id', 'title', 'number', 'type', 'region', 'big_subject', 'small_subjects',
                   'presentation', 'question', 'answer', 'is_scrapped', 'presentation_image', 'size']
+
+    def get_number(self, obj):
+        return str(obj.number)
 
     def get_small_subjects(self, obj):
         temp_data = list(ProblemSmallSubjectSerializer(obj.small_subject, many=True).data)
