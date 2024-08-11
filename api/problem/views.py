@@ -272,3 +272,13 @@ class TestSetListView(ListAPIView):
             result = type_a.union(type_b).order_by('custom_order')
 
             return result
+
+
+# 실제 문제가 있는 지역에 관한 API
+class ActiveRegionAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        # 문제 다 가져오기
+        problems = Problem.objects.values('region')
+        problem_regions = list(problems)
+
+        return Response(problem_regions, status=HTTP_200_OK)

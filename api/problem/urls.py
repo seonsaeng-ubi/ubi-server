@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import SubjectAPIView, RegionAPIView, ScrapUpdateAPIView, ScrappedProblemListAPIView, \
     ProblemDetailAPIView, AllRandomPracticeProblemListAPIVIew, AllPracticeProblemListAPIVIew, \
-    NewRealProblemListAPIView, SearchProblem, TestSetView, TestSetListView
+    NewRealProblemListAPIView, SearchProblem, TestSetView, TestSetListView, ActiveRegionAPIView
 
 urlpatterns = [
     path('regions/', RegionAPIView.as_view()),
@@ -22,5 +22,7 @@ urlpatterns = [
     path('mypage/', SearchProblem.as_view()),
     # 실전 모의고사 설명
     path('test-description/<int:pk>/', TestSetView.as_view()),
-    path('test/list/', TestSetListView.as_view())
+    path('test/list/', TestSetListView.as_view()),
+    # 지역 문제 관련
+    path('active-region/real-questions/', ActiveRegionAPIView.as_view())
 ]
