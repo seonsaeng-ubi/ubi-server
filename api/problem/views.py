@@ -7,6 +7,7 @@ from ..utils import StandardResultsSetPagination
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
+from django.db.models import Value
 from django.db.models import Q
 
 
@@ -227,25 +228,47 @@ class TestSetListView(ListAPIView):
         # 서울일 경우
         if region.id == seoul.id:
             # 구상형 3문제, 즉답형 3, 추가 질문 2
-            conception = problems.filter(type='A').order_by('?')[:3]
+            conception = problems.filter(type='A').order_by('?')[:2]
             immediate = problems.filter(type='B').order_by('?')[:3]
             additional = problems.filter(type='C').order_by('?')[:2]
-            return conception | immediate | additional
+
+            type_a = conception.annotate(custom_order=Value(1))
+            type_b = immediate.annotate(custom_order=Value(2))
+            type_c = additional.annotate(custom_order=Value(3))
+            temp_result = type_a.union(type_b).order_by('custom_order')
+            result = temp_result.union(type_c).order_by('custom_order')
+
+            return result
         # 경기일 경우
         elif region.id == gyeonggi.id:
             # 구상형 3문제, 즉답형 2
             conception = problems.filter(type='A').order_by('?')[:3]
             immediate = problems.filter(type='B').order_by('?')[:2]
-            return conception | immediate
+
+            type_a = conception.annotate(custom_order=Value(1))
+            type_b = immediate.annotate(custom_order=Value(2))
+            result = type_a.union(type_b).order_by('custom_order')
+
+            return result
         # 세종일 경우
         elif region.id == sejong.id:
             # 구상형 3문제, 즉답형 2
             conception = problems.filter(type='A').order_by('?')[:3]
             immediate = problems.filter(type='B').order_by('?')[:2]
-            return conception | immediate
+
+            type_a = conception.annotate(custom_order=Value(1))
+            type_b = immediate.annotate(custom_order=Value(2))
+            result = type_a.union(type_b).order_by('custom_order')
+
+            return result
         # 평가원일 경우
         else:
             # 구상형 3문제, 즉답형 1
             conception = problems.filter(type='A').order_by('?')[:3]
             immediate = problems.filter(type='B').order_by('?')[:1]
-            return conception | immediate
+
+            type_a = conception.annotate(custom_order=Value(1))
+            type_b = immediate.annotate(custom_order=Value(2))
+            result = type_a.union(type_b).order_by('custom_order')
+
+            return result
