@@ -20,7 +20,7 @@ class UserSocialLoginSerializer(serializers.Serializer):
     code = serializers.CharField(write_only=True)
     email = serializers.CharField(write_only=True)
     nickname = serializers.CharField(write_only=True)
-    phone = serializers.CharField(write_only=True, allow_null=True)
+    phone = serializers.CharField(write_only=True, allow_null=True, allow_blank=True)
     firebase_token = serializers.CharField(write_only=True)
     social_type = serializers.CharField(write_only=True)
 
