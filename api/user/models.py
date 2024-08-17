@@ -66,6 +66,7 @@ class Profile(models.Model):
     terms_agreed = models.BooleanField(verbose_name=_('약관 동의'), default=False)
     marketing_agreed = models.BooleanField(verbose_name=_('마케팅 동의'), default=False)
     marketing_agreed_at = models.DateTimeField(verbose_name=_('마케팅 동의 / 취소 일자'), null=True, blank=True)
+    phone = models.CharField(verbose_name=_('휴대폰'), max_length=32, null=True, blank=True)
 
     class Meta:
         verbose_name = '프로필'

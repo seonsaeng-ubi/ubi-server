@@ -6,6 +6,5 @@ from .models import Setting
 
 @api_view(['GET'])
 def is_deployment_check(request):
-    is_deployment_model = Setting.objects.first().setting
-    result = False if is_deployment_model == 'A' else True
-    return Response({'results': result}, status=HTTP_200_OK)
+    is_deployment_model = Setting.objects.last()
+    return Response({'version': is_deployment_model.version}, status=HTTP_200_OK)

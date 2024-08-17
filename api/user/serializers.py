@@ -20,6 +20,7 @@ class UserSocialLoginSerializer(serializers.Serializer):
     code = serializers.CharField(write_only=True)
     email = serializers.CharField(write_only=True)
     nickname = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True, allow_null=True)
     firebase_token = serializers.CharField(write_only=True)
     social_type = serializers.CharField(write_only=True)
 
@@ -27,6 +28,7 @@ class UserSocialLoginSerializer(serializers.Serializer):
         code = attrs['code']
         email = attrs['email']
         nickname = attrs['nickname']
+        phone = attrs['phone']
         social_type = attrs['social_type']
         firebase_token = attrs['firebase_token']
 
@@ -40,12 +42,13 @@ class UserSocialLoginSerializer(serializers.Serializer):
         code = validated_data['code']
         email = validated_data['email']
         nickname = validated_data['nickname']
+        phone = validated_data['phone']
         social_type = validated_data['social_type']
         firebase_token = validated_data['firebase_token']
         user, created = User.objects.get_or_create(email=email, defaults={'password': make_password(None)})
 
         if created:
-            user_profile = Profile.objects.create(user=user, nickname=nickname, kind=social_type, code=code, firebase_token=firebase_token)
+            user_profile = Profile.objects.create(user=user, nickname=nickname, kind=social_type, code=code, phone=phone, firebase_token=firebase_token)
             user_profile.save()
         else:
             user_profile = Profile.objects.get(user=user)
