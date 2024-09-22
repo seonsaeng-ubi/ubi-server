@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import SubjectAPIView, RegionAPIView, ScrapUpdateAPIView, ScrappedProblemListAPIView, \
-    ProblemDetailAPIView, AllRandomPracticeProblemListAPIVIew, AllPracticeProblemListAPIVIew, \
+from .views import SubjectAPIView, RegionAPIView, ScrapUpdateAPIView, ScrappedProblemListAPIView, success_view, \
+    ProblemDetailAPIView, AllRandomPracticeProblemListAPIVIew, AllPracticeProblemListAPIVIew, upload_excel, \
     NewRealProblemListAPIView, SearchProblem, TestSetView, TestSetListView, ActiveRegionAPIView
 
 urlpatterns = [
@@ -24,5 +24,9 @@ urlpatterns = [
     path('test-description/<int:pk>/', TestSetView.as_view()),
     path('test/list/', TestSetListView.as_view()),
     # 지역 문제 관련
-    path('active-region/real-questions/', ActiveRegionAPIView.as_view())
+    path('active-region/real-questions/', ActiveRegionAPIView.as_view()),
+    # 엑셀로 연습문제 업로드
+    path('upload-excel/', upload_excel, name='upload_excel'),
+    # 성공 페이지
+    path('upload-success/', success_view, name='success_page'),
 ]
