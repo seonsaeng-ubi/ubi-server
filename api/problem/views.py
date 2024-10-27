@@ -257,12 +257,11 @@ class TestSetListView(ListAPIView):
         if is_blocked is True:
             return Problem.objects.none()
         else:
-
             # 지역 필터링
             regions = Region.objects.all()
             seoul = regions.get(title='서울')
             gyeonggi = regions.get(title='경기')
-            sejong = regions.get(title='세종')
+            # sejong = regions.get(title='세종')
             pyeonggawon = regions.get(title='평가원')
             gongtong = regions.get(title='공통')
             region = regions.get(id=int(self.request.query_params.get('region', '1')))
@@ -298,16 +297,16 @@ class TestSetListView(ListAPIView):
 
                 return result
             # 세종일 경우
-            elif region.id == sejong.id:
-                # 구상형 3문제, 즉답형 2
-                conception = problems.filter(type='A').order_by('?')[:3]
-                immediate = problems.filter(type='B').order_by('?')[:2]
-
-                type_a = conception.annotate(custom_order=Value(1))
-                type_b = immediate.annotate(custom_order=Value(2))
-                result = type_a.union(type_b).order_by('custom_order')
-
-                return result
+            # elif region.id == sejong.id:
+            #     # 구상형 3문제, 즉답형 2
+            #     conception = problems.filter(type='A').order_by('?')[:3]
+            #     immediate = problems.filter(type='B').order_by('?')[:2]
+            #
+            #     type_a = conception.annotate(custom_order=Value(1))
+            #     type_b = immediate.annotate(custom_order=Value(2))
+            #     result = type_a.union(type_b).order_by('custom_order')
+            #
+            #     return result
             # 평가원일 경우
             else:
                 # 구상형 3문제, 즉답형 1
