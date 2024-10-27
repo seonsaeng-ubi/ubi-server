@@ -81,8 +81,8 @@ class ProblemListSerializer(serializers.ModelSerializer):
             color3 = colors.get(title='서울')
         elif obj.region.title == '경기':
             color3 = colors.get(title='경기')
-        elif obj.region.title == '세종':
-            color3 = colors.get(title='세종')
+        # elif obj.region.title == '세종':
+        #     color3 = colors.get(title='세종')
         elif obj.region.title == '평가원':
             color3 = colors.get(title='평가원')
         else:

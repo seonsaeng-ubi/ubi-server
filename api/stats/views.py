@@ -8,8 +8,8 @@ from .models import Setting
 
 @api_view(['GET'])
 def is_deployment_check(request):
-    is_deployment_model = Setting.objects.last()
-    return Response({'version': is_deployment_model.version}, status=HTTP_200_OK)
+    setting_object = Setting.objects.last()
+    return Response({'version': setting_object.version, 'is_blocked': setting_object.is_blocked}, status=HTTP_200_OK)
 
 
 @api_view(['GET'])
