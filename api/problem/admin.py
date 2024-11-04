@@ -4,9 +4,9 @@ from django.contrib import admin
 
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
-    list_display = ('get_id', 'title', 'number')
+    list_display = ('get_id', 'title', 'number', 'problem_type')
     list_display_links = ('title',)
-    list_filter = ['title']
+    list_filter = ['title', 'problem_type']
     search_fields = ('title', 'user',)
     summernote_fields = []
 

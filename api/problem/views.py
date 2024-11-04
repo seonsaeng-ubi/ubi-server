@@ -33,7 +33,7 @@ class RegionAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        return Region.objects.all()[:4]
+        return Region.objects.all()[:3]
 
 
 # 스크랩 취소 / 하기
