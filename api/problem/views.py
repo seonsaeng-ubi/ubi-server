@@ -335,81 +335,82 @@ def upload_excel(request):
     if request.method == "POST":
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            excel_file = request.FILES['excel_file']
-            wb = openpyxl.load_workbook(excel_file)
-            # 워크시트 첫 장 불러오기
-            ws = wb.worksheets[0]
+            excel_files = request.FILES.getlist('excel_file')
+            for excel_file in excel_files:
+                wb = openpyxl.load_workbook(excel_file)
+                # 워크시트 첫 장 불러오기
+                ws = wb.worksheets[0]
 
-            number = ws['B5'].value
-            writer = ws['C5'].value
-            type = ws['D5'].value
-            region = ws['E5'].value
-            is_practice = ws['F5'].value
-            big_subject = ws['G5'].value
-            small_subject = ws['H5'].value
-            has_picture = ws['J5'].value
-            real_region = ws['K5'].value
-            title = ws['L5'].value
-            year = ws['M5'].value
-            presentation = ws['G8'].value
-            question = ws['K8'].value
-            answer = ws['L8'].value
+                number = ws['B5'].value
+                writer = ws['C5'].value
+                type = ws['D5'].value
+                region = ws['E5'].value
+                is_practice = ws['F5'].value
+                big_subject = ws['G5'].value
+                small_subject = ws['H5'].value
+                has_picture = ws['J5'].value
+                real_region = ws['K5'].value
+                title = ws['L5'].value
+                year = ws['M5'].value
+                presentation = ws['G8'].value
+                question = ws['K8'].value
+                answer = ws['L8'].value
 
-            big_subject_obj, big_subject_created = BigSubject.objects.get_or_create(title=big_subject)
-            small_subject_obj, small_subject_created = SmallSubject.objects.get_or_create(title=small_subject,
-                                                                                          big_subject=big_subject_obj)
+                big_subject_obj, big_subject_created = BigSubject.objects.get_or_create(title=big_subject)
+                small_subject_obj, small_subject_created = SmallSubject.objects.get_or_create(title=small_subject,
+                                                                                              big_subject=big_subject_obj)
 
-            if small_subject_created:
-                chars = '0123456789ABCDEF'
-                small_subject_obj.color = ''.join(random.choice(chars) for i in range(6))
-                small_subject_obj.save()
+                if small_subject_created:
+                    chars = '0123456789ABCDEF'
+                    small_subject_obj.color = ''.join(random.choice(chars) for i in range(6))
+                    small_subject_obj.save()
 
-            new_problem = Problem.objects.create(
-                number=int(number),
-                writer=writer,
-                type='A' if type == '구상형' else 'B',
-                region=Region.objects.get(title=region),
-                real_region=RealRegion.objects.get(title=real_region) if real_region is not None else None,
-                problem_type='P' if is_practice == '예상문제' else 'A',
-                title=title,
-                year=int(year) if year is not None else None,
-                presentation=presentation,
-                question=question,
-                answer=answer,
-                has_image=False if has_picture == '없음' else True,
-                big_subject=big_subject_obj,
-            )
-            new_problem.small_subject.add(small_subject_obj)
+                new_problem = Problem.objects.create(
+                    number=int(number),
+                    writer=writer,
+                    type='A' if type == '구상형' else 'B',
+                    region=Region.objects.get(title=region),
+                    real_region=RealRegion.objects.get(title=real_region) if real_region is not None else None,
+                    problem_type='P' if is_practice == '예상문제' else 'A',
+                    title=title,
+                    year=int(year) if year is not None else None,
+                    presentation=presentation,
+                    question=question,
+                    answer=answer,
+                    has_image=False if has_picture == '없음' else True,
+                    big_subject=big_subject_obj,
+                )
+                new_problem.small_subject.add(small_subject_obj)
 
-            img = None
-            if has_picture == '없음':
-                new_problem.save()
-            else:
-                # 이미지 로더
-                image_loader = SheetImageLoader(ws)
+                img = None
+                if has_picture == '없음':
+                    new_problem.save()
+                else:
+                    # 이미지 로더
+                    image_loader = SheetImageLoader(ws)
 
-                alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-                for image in ws._images:
-                    col = image.anchor._from.col
-                    row = image.anchor._from.row + 1
+                    for image in ws._images:
+                        col = image.anchor._from.col
+                        row = image.anchor._from.row + 1
 
-                    img = image_loader.get(alphabets[col] + str(row))
-                    img.save(str(number) + '.jpeg')
+                        img = image_loader.get(alphabets[col] + str(row))
+                        img.save(str(number) + '.jpeg')
 
-                with open(str(number) + '.jpeg', 'rb') as f:
-                    image_file = File(f)
-                    s3 = boto3.client(
-                        's3', aws_access_key_id=os.getenv('S3_ACCESS_KEY_ID'),
-                        aws_secret_access_key=os.getenv('S3_SECRET_ACCESS_KEY'),
-                        region_name='ap-northeast-2'
-                    )
-                    s3.upload_fileobj(image_file, 'ubi-s3-bucket', str(number) + '.jpeg')
+                    with open(str(number) + '.jpeg', 'rb') as f:
+                        image_file = File(f)
+                        s3 = boto3.client(
+                            's3', aws_access_key_id=os.getenv('S3_ACCESS_KEY_ID'),
+                            aws_secret_access_key=os.getenv('S3_SECRET_ACCESS_KEY'),
+                            region_name='ap-northeast-2'
+                        )
+                        s3.upload_fileobj(image_file, 'ubi-s3-bucket', str(number) + '.jpeg')
 
-                    new_problem.image_url = 'https://ubi-s3-bucket.s3.ap-northeast-2.amazonaws.com/' + str(
-                        number) + '.jpeg'
+                        new_problem.image_url = 'https://ubi-s3-bucket.s3.ap-northeast-2.amazonaws.com/' + str(
+                            number) + '.jpeg'
 
-                new_problem.save()
+                    new_problem.save()
 
             return redirect('success_page')  # 성공시 리다이렉트할 URL 설정
 
