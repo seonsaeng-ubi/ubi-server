@@ -356,61 +356,63 @@ def upload_excel(request):
                 question = ws['K8'].value
                 answer = ws['L8'].value
 
-                big_subject_obj, big_subject_created = BigSubject.objects.get_or_create(title=big_subject)
-                small_subject_obj, small_subject_created = SmallSubject.objects.get_or_create(title=small_subject,
-                                                                                              big_subject=big_subject_obj)
-
-                if small_subject_created:
-                    chars = '0123456789ABCDEF'
-                    small_subject_obj.color = ''.join(random.choice(chars) for i in range(6))
-                    small_subject_obj.save()
-
-                new_problem = Problem.objects.create(
-                    number=int(number),
-                    writer=writer,
-                    type='A' if type == '구상형' else 'B',
-                    region=Region.objects.get(title=region),
-                    real_region=RealRegion.objects.get(title=real_region) if real_region is not None else None,
-                    problem_type='P' if is_practice == '예상문제' else 'A',
-                    title=title,
-                    year=int(year) if year is not None else None,
-                    presentation=presentation,
-                    question=question,
-                    answer=answer,
-                    has_image=False if has_picture == '없음' else True,
-                    big_subject=big_subject_obj,
-                )
-                new_problem.small_subject.add(small_subject_obj)
-
-                img = None
-                if has_picture == '없음':
-                    new_problem.save()
+                if Problem.objects.filter(number=int(number)).exists():
+                    pass
                 else:
-                    # 이미지 로더
-                    image_loader = SheetImageLoader(ws)
+                    big_subject_obj, big_subject_created = BigSubject.objects.get_or_create(title=big_subject)
+                    small_subject_obj, small_subject_created = SmallSubject.objects.get_or_create(title=small_subject,
+                                                                                                  big_subject=big_subject_obj)
+                    if small_subject_created:
+                        chars = '0123456789ABCDEF'
+                        small_subject_obj.color = ''.join(random.choice(chars) for i in range(6))
+                        small_subject_obj.save()
 
-                    alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    new_problem = Problem.objects.create(
+                        number=int(number),
+                        writer=writer,
+                        type='A' if type == '구상형' else 'B',
+                        region=Region.objects.get(title=region),
+                        real_region=RealRegion.objects.get(title=real_region) if real_region is not None else None,
+                        problem_type='P' if is_practice == '예상문제' else 'A',
+                        title=title,
+                        year=int(year) if year is not None else None,
+                        presentation=presentation,
+                        question=question,
+                        answer=answer,
+                        has_image=False if has_picture == '없음' else True,
+                        big_subject=big_subject_obj,
+                    )
+                    new_problem.small_subject.add(small_subject_obj)
 
-                    for image in ws._images:
-                        col = image.anchor._from.col
-                        row = image.anchor._from.row + 1
+                    img = None
+                    if has_picture == '없음':
+                        new_problem.save()
+                    else:
+                        # 이미지 로더
+                        image_loader = SheetImageLoader(ws)
 
-                        img = image_loader.get(alphabets[col] + str(row))
-                        img.save(str(number) + '.jpeg')
+                        alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-                    with open(str(number) + '.jpeg', 'rb') as f:
-                        image_file = File(f)
-                        s3 = boto3.client(
-                            's3', aws_access_key_id=os.getenv('S3_ACCESS_KEY_ID'),
-                            aws_secret_access_key=os.getenv('S3_SECRET_ACCESS_KEY'),
-                            region_name='ap-northeast-2'
-                        )
-                        s3.upload_fileobj(image_file, 'ubi-s3-bucket', str(number) + '.jpeg')
+                        for image in ws._images:
+                            col = image.anchor._from.col
+                            row = image.anchor._from.row + 1
 
-                        new_problem.image_url = 'https://ubi-s3-bucket.s3.ap-northeast-2.amazonaws.com/' + str(
-                            number) + '.jpeg'
+                            img = image_loader.get(alphabets[col] + str(row))
+                            img.save(str(number) + '.jpeg')
 
-                    new_problem.save()
+                        with open(str(number) + '.png', 'rb') as f:
+                            image_file = File(f)
+                            s3 = boto3.client(
+                                's3', aws_access_key_id=os.getenv('S3_ACCESS_KEY_ID'),
+                                aws_secret_access_key=os.getenv('S3_SECRET_ACCESS_KEY'),
+                                region_name='ap-northeast-2'
+                            )
+                            s3.upload_fileobj(image_file, 'ubi-s3-bucket', str(number) + '.jpeg')
+
+                            new_problem.image_url = 'https://ubi-s3-bucket.s3.ap-northeast-2.amazonaws.com/' + str(
+                                number) + '.jpeg'
+
+                        new_problem.save()
 
             return redirect('success_page')  # 성공시 리다이렉트할 URL 설정
 
