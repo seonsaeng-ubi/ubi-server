@@ -64,7 +64,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
         if obj.problem_type == 'P':
             color1 = colors.get(title='연습문제')
         else:
-            color1 = colors.get(title='실전문제')
+            color1 = colors.get(title='기출문제')
         temp_data.append({'id': color1.id, 'title': color1.title, 'color': color1.color})
 
         # 문제 유형
