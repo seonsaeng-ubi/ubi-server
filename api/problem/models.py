@@ -133,3 +133,24 @@ class Color(models.Model):
     class Meta:
         verbose_name = '색상'
         verbose_name_plural = '색상'
+
+
+class StudyRoom(models.Model):
+    room_no = models.CharField(max_length=5, verbose_name='방 번호', null=True, blank=True)
+    problems = models.ManyToManyField(Problem, verbose_name='문제들')
+    users = models.ManyToManyField(User, verbose_name='참여자')
+    region = models.CharField(max_length=1, verbose_name='지역', null=True, blank=True)
+
+    class TypeChoices(models.TextChoices):
+        A = '구상형'
+        B = '즉답형'
+        C = '모의고사'
+
+    type = models.CharField(max_length=32, verbose_name='질문 타입', choices=TypeChoices.choices)
+
+    def __str__(self):
+        return str(self.room_no)
+
+    class Meta:
+        verbose_name = '스터디룸'
+        verbose_name_plural = verbose_name

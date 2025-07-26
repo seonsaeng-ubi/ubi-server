@@ -1,10 +1,12 @@
+from .models import BigSubject, SmallSubject, Region, Problem, TestSet, RealRegion, StudyRoom
+from .helpers import generate_unique_room_no, get_random_practice_problems, get_mockup_problems
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
-from .serializers import BigSubjectSerializer, RegionSerializer, \
-    ProblemListSerializer, ProblemUpdateSerializer, TestSetSerializer
-from .models import BigSubject, SmallSubject, Region, Problem, TestSet, RealRegion
+from .serializers import BigSubjectSerializer, RegionSerializer, ProblemListSerializer, \
+    ProblemUpdateSerializer, TestSetSerializer, StudyRoomSerializer, StudyRoomListSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from openpyxl_image_loader import SheetImageLoader
 from ..utils import StandardResultsSetPagination
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from rest_framework.status import HTTP_200_OK
 from rest_framework.response import Response
@@ -18,6 +20,112 @@ import openpyxl
 import random
 import boto3
 import os
+
+
+class MyStudyRoomListAPIView(ListAPIView):
+    serializer_class = StudyRoomListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return StudyRoom.objects.filter(users=self.request.user).prefetch_related('problems', 'users').order_by('-id')
+
+
+class AllStudyRoomListAPIView(ListAPIView):
+    serializer_class = StudyRoomSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return StudyRoom.objects.prefetch_related('problems', 'users').order_by('-id')
+
+
+class StudyRoomDetailAPIView(RetrieveAPIView):
+    serializer_class = StudyRoomSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        study_room = get_object_or_404(StudyRoom.objects.prefetch_related('problems', 'users'), pk=pk)
+
+        # 현재 사용자를 스터디룸에 추가 (이미 있으면 중복 추가 안됨)
+        study_room.users.add(self.request.user)
+
+        return study_room
+
+
+class StudyRoomSearchAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        room_no = request.query_params.get('room_no')
+        if not room_no:
+            return Response({'detail': 'room_no 파라미터가 필요합니다.'}, status=400)
+
+        try:
+            study_room = StudyRoom.objects.get(room_no=room_no)
+        except StudyRoom.DoesNotExist:
+            return Response({'detail': '해당 방 번호를 찾을 수 없습니다.'}, status=404)
+
+        serializer = StudyRoomSerializer(study_room)
+        return Response(serializer.data, status=200)
+
+
+class StudyRoomCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # 현재 사용자
+        user = request.user
+        # 지역 필터링
+        region = request.data.get('region', '1')
+        # 문제 타입 필터링 (구상형, 즉답형, 모의고사 세트)
+        type = request.data.get('type', 'A')
+        # 스터디룸 번호 생성
+        room_no = generate_unique_room_no()
+
+        study_room = StudyRoom.objects.create(
+            region=region,
+            type=type,
+            room_no=room_no,
+        )
+        study_room.users.add(user)
+        # 질문 세트 분기
+        if type == 'C':
+            problems = get_mockup_problems(region)
+        else:
+            problems = get_random_practice_problems(region, type)
+        # 질문 넣기
+        study_room.problems.set(problems)
+        study_room.save()
+
+        # 여기에 data serialize해서 response 할 것.
+        serializer = StudyRoomSerializer(study_room)
+        return Response(serializer.data, status=200)
+
+
+class StudyRoomLeaveAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            study_room = StudyRoom.objects.get(pk=pk)
+        except StudyRoom.DoesNotExist:
+            return Response({'detail': '해당 스터디룸을 찾을 수 없습니다.'}, status=404)
+        user = request.user
+
+        # 사용자가 해당 스터디룸에 참여하고 있는지 확인
+        if not study_room.users.filter(id=user.id).exists():
+            return Response({'detail': '해당 스터디룸에 참여하고 있지 않습니다.'}, status=400)
+
+        # 사용자를 스터디룸에서 제거
+        study_room.users.remove(user)
+
+        # 모든 사용자가 나갔는지 확인
+        if study_room.users.count() == 0:
+            # 모든 사용자가 나갔으면 스터디룸 삭제
+            study_room.delete()
+            return Response({'detail': '스터디룸에서 나갔습니다. 모든 참여자가 나가서 스터디룸이 삭제되었습니다.'}, status=200)
+
+        return Response({'detail': '스터디룸에서 나갔습니다.'}, status=200)
 
 
 class SubjectAPIView(ListAPIView):
@@ -296,17 +404,6 @@ class TestSetListView(ListAPIView):
                 result = type_a.union(type_b).order_by('custom_order')
 
                 return result
-            # 세종일 경우
-            # elif region.id == sejong.id:
-            #     # 구상형 3문제, 즉답형 2
-            #     conception = problems.filter(type='A').order_by('?')[:3]
-            #     immediate = problems.filter(type='B').order_by('?')[:2]
-            #
-            #     type_a = conception.annotate(custom_order=Value(1))
-            #     type_b = immediate.annotate(custom_order=Value(2))
-            #     result = type_a.union(type_b).order_by('custom_order')
-            #
-            #     return result
             # 평가원일 경우
             else:
                 # 구상형 3문제, 즉답형 1

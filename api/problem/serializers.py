@@ -1,4 +1,4 @@
-from .models import BigSubject, SmallSubject, Region, Problem, TestSet, Color
+from .models import BigSubject, SmallSubject, Region, Problem, TestSet, Color, StudyRoom
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 
@@ -81,8 +81,6 @@ class ProblemListSerializer(serializers.ModelSerializer):
             color3 = colors.get(title='서울')
         elif obj.region.title == '경기':
             color3 = colors.get(title='경기')
-        # elif obj.region.title == '세종':
-        #     color3 = colors.get(title='세종')
         elif obj.region.title == '평가원':
             color3 = colors.get(title='평가원')
         else:
@@ -148,3 +146,23 @@ class TestSetSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestSet
         fields = ['id', 'description', 'time_description']
+
+
+# 스터디룸
+class StudyRoomSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    problems = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = StudyRoom
+        fields = ['id', 'room_no', 'problems', 'users', 'region', 'type']
+
+    def get_problems(self, obj):
+        return ProblemListSerializer(obj.problems, many=True)
+
+
+# 스터디룸 리스트
+class StudyRoomListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyRoom
+        fields = ['id', 'room_no', 'region', 'type']

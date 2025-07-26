@@ -1,7 +1,9 @@
 from django.urls import path
 from .views import SubjectAPIView, RegionAPIView, ScrapUpdateAPIView, ScrappedProblemListAPIView, success_view, \
     ProblemDetailAPIView, AllRandomPracticeProblemListAPIVIew, AllPracticeProblemListAPIVIew, upload_excel, \
-    NewRealProblemListAPIView, SearchProblem, TestSetView, TestSetListView, ActiveRegionAPIView
+    NewRealProblemListAPIView, SearchProblem, TestSetView, TestSetListView, ActiveRegionAPIView, MyStudyRoomListAPIView, \
+    AllStudyRoomListAPIView, StudyRoomDetailAPIView, StudyRoomSearchAPIView, StudyRoomCreateAPIView, \
+    StudyRoomLeaveAPIView
 
 urlpatterns = [
     path('regions/', RegionAPIView.as_view()),
@@ -29,4 +31,19 @@ urlpatterns = [
     path('upload-excel/', upload_excel, name='upload_excel'),
     # 성공 페이지
     path('upload-success/', success_view, name='success_page'),
+
+    # 스터디룸 관련
+
+    # 내가 참여한 스터디룸 목록
+    path('studyrooms/my/', MyStudyRoomListAPIView.as_view(), name='my-studyroom-list'),
+    # 모든 스터디룸 목록
+    path('studyrooms/', AllStudyRoomListAPIView.as_view(), name='all-studyroom-list'),
+    # 스터디룸 상세 조회 (자동 참여)
+    path('studyrooms/<int:pk>/', StudyRoomDetailAPIView.as_view(), name='studyroom-detail'),
+    # 방 번호로 스터디룸 검색
+    path('studyrooms/search/', StudyRoomSearchAPIView.as_view(), name='studyroom-search'),
+    # 스터디룸 생성
+    path('studyrooms/create/', StudyRoomCreateAPIView.as_view(), name='studyroom-create'),
+    # 스터디룸 나가기
+    path('studyrooms/<int:pk>/leave/', StudyRoomLeaveAPIView.as_view(), name='studyroom-leave'),
 ]
