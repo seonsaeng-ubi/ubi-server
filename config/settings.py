@@ -16,7 +16,7 @@ DEBUG = os.getenv('DEBUG', '')
 if DEBUG is True:
     ALLOWED_HOSTS = ['*', ]
 else:
-    ALLOWED_HOSTS = ['woobi.co.uk', 'www.woobi.co.uk']
+    ALLOWED_HOSTS = ['woobi.co.uk', 'www.woobi.co.uk', ]
 
 # Application definition
 
@@ -244,3 +244,8 @@ ANDROID_SHA256_FINGERPRINTS = os.getenv('ANDROID_SHA256_FINGERPRINTS')
 IOS_TEAM_ID = os.getenv('IOS_TEAM_ID')
 IOS_BUNDLE_ID = os.getenv('IOS_BUNDLE_ID')
 IOS_APP_LINK_PATHS = os.getenv('IOS_APP_LINK_PATHS')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://woobi.co.uk',
+    'https://www.woobi.co.uk',
+]
