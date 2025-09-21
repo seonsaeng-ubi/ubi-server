@@ -56,16 +56,16 @@ class StudyRoomSearchAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        room_no = request.query_params.get('room_no')
-        if not room_no:
-            return Response({'detail': 'room_no 파라미터가 필요합니다.'}, status=400)
+        room_no = request.query_params.get('room_no', '')
+        room_no = room_no.strip()
+        if room_no == '':
+            return Response([], status=200)
 
-        try:
-            study_room = StudyRoom.objects.get(room_no=room_no)
-        except StudyRoom.DoesNotExist:
-            return Response({'detail': '해당 방 번호를 찾을 수 없습니다.'}, status=404)
+        # 접두어로 시작하는 스터디룸 전체 검색
+        study_rooms = StudyRoom.objects.filter(room_no__startswith=room_no).order_by('-id')
 
-        serializer = StudyRoomSerializer(study_room)
+        # 리스트로 반환 (없으면 빈 리스트)
+        serializer = StudyRoomListSerializer(study_rooms, many=True)
         return Response(serializer.data, status=200)
 
 
@@ -76,7 +76,7 @@ class StudyRoomCreateAPIView(APIView):
         # 현재 사용자
         user = request.user
         # 지역 필터링
-        region = request.data.get('region', '1')
+        region = Region.objects.get(id=int(request.data.get('region', '1')))
         # 문제 타입 필터링 (구상형, 즉답형, 모의고사 세트)
         type = request.data.get('type', 'A')
         # 스터디룸 번호 생성
@@ -90,9 +90,9 @@ class StudyRoomCreateAPIView(APIView):
         study_room.users.add(user)
         # 질문 세트 분기
         if type == 'C':
-            problems = get_mockup_problems(region)
+            problems = get_mockup_problems(region.id)
         else:
-            problems = get_random_practice_problems(region, type)
+            problems = get_random_practice_problems(region.id, type)
         # 질문 넣기
         study_room.problems.set(problems)
         study_room.save()

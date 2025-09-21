@@ -139,7 +139,7 @@ class StudyRoom(models.Model):
     room_no = models.CharField(max_length=5, verbose_name='방 번호', null=True, blank=True)
     problems = models.ManyToManyField(Problem, verbose_name='문제들')
     users = models.ManyToManyField(User, verbose_name='참여자')
-    region = models.CharField(max_length=1, verbose_name='지역', null=True, blank=True)
+    region = models.ForeignKey(Region, verbose_name='지역', null=True, blank=True, on_delete=models.SET_NULL)
 
     class TypeChoices(models.TextChoices):
         A = '구상형'
