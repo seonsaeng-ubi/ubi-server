@@ -147,6 +147,9 @@ class StudyRoom(models.Model):
         C = '모의고사'
 
     type = models.CharField(max_length=32, verbose_name='질문 타입', choices=TypeChoices.choices)
+    # 딥링크 공유용 토큰/URL
+    deep_link_token = models.CharField(max_length=64, verbose_name='딥링크 토큰', null=True, blank=True, unique=True)
+    deep_link = models.URLField(verbose_name='딥링크 URL', null=True, blank=True, unique=True)
 
     def __str__(self):
         return str(self.room_no)

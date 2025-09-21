@@ -1,5 +1,6 @@
 from .models import BigSubject, SmallSubject, Region, Problem, TestSet, RealRegion, StudyRoom
-from .helpers import generate_unique_room_no, get_random_practice_problems, get_mockup_problems
+from .helpers import generate_unique_room_no, get_random_practice_problems, get_mockup_problems, \
+    generate_unique_deep_link_token, build_deep_link
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
 from .serializers import BigSubjectSerializer, RegionSerializer, ProblemListSerializer, \
     ProblemUpdateSerializer, TestSetSerializer, StudyRoomSerializer, StudyRoomListSerializer
@@ -14,12 +15,14 @@ from rest_framework.views import APIView
 from api.stats.models import Setting
 from django.core.files import File
 from .forms import ExcelUploadForm
+from django.conf import settings
 from django.db.models import Value
 from django.db.models import Q
 import openpyxl
 import random
 import boto3
 import os
+from django.http import JsonResponse
 
 
 class MyStudyRoomListAPIView(ListAPIView):
@@ -76,7 +79,7 @@ class StudyRoomCreateAPIView(APIView):
         # 현재 사용자
         user = request.user
         # 지역 필터링
-        region = Region.objects.get(id=int(request.data.get('region', '1')))
+        region = request.data.get('region', '1')
         # 문제 타입 필터링 (구상형, 즉답형, 모의고사 세트)
         type = request.data.get('type', 'A')
         # 스터디룸 번호 생성
@@ -87,12 +90,19 @@ class StudyRoomCreateAPIView(APIView):
             type=type,
             room_no=room_no,
         )
+        # 딥링크 토큰/URL 생성
+        token = generate_unique_deep_link_token()
+        deep_link = build_deep_link(token)
+        study_room.deep_link_token = token
+        study_room.deep_link = deep_link
+        study_room.save()
+
         study_room.users.add(user)
         # 질문 세트 분기
         if type == 'C':
-            problems = get_mockup_problems(region.id)
+            problems = get_mockup_problems(region)
         else:
-            problems = get_random_practice_problems(region.id, type)
+            problems = get_random_practice_problems(region, type)
         # 질문 넣기
         study_room.problems.set(problems)
         study_room.save()
@@ -520,3 +530,57 @@ def upload_excel(request):
 
 def success_view(request):
     return render(request, 'success.html')
+
+
+class StudyRoomDeepLinkResolveAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, token, *args, **kwargs):
+        try:
+            room = StudyRoom.objects.get(deep_link_token=token)
+        except StudyRoom.DoesNotExist:
+            return Response({'detail': '존재하지 않는 링크입니다.'}, status=404)
+        return Response({'id': room.id, 'room_no': room.room_no, 'deep_link': room.deep_link}, status=200)
+
+
+class AssetLinksView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        package = getattr(settings, 'ANDROID_APP_ID', '')
+        fps_raw = getattr(settings, 'ANDROID_SHA256_FINGERPRINTS', '') or ''
+        fps = [fp.strip() for fp in fps_raw.split(',') if fp.strip()]
+        data = [
+            {
+                "relation": ["delegate_permission/common.handle_all_urls"],
+                "target": {
+                    "namespace": "android_app",
+                    "package_name": package,
+                    "sha256_cert_fingerprints": fps,
+                },
+            }
+        ]
+        return JsonResponse(data, safe=False)
+
+
+class AppleAppSiteAssociationView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        team_id = getattr(settings, 'IOS_TEAM_ID', '')
+        bundle_id = getattr(settings, 'IOS_BUNDLE_ID', '')
+        app_id = f"{team_id}.{bundle_id}" if team_id and bundle_id else ''
+        paths_raw = getattr(settings, 'IOS_APP_LINK_PATHS', '/s/*')
+        paths = [p.strip() for p in paths_raw.split(',') if p.strip()]
+        data = {
+            "applinks": {
+                "apps": [],
+                "details": [
+                    {
+                        "appID": app_id,
+                        "paths": paths,
+                    }
+                ],
+            }
+        }
+        return JsonResponse(data)

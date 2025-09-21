@@ -1,6 +1,8 @@
 from .models import StudyRoom, Region, Problem
 from django.db.models import Q, Value
+from django.conf import settings
 import random
+import secrets
 
 
 def generate_unique_room_no():
@@ -8,6 +10,23 @@ def generate_unique_room_no():
         number = str(random.randint(10000, 99999))  # 5자리 숫자
         if not StudyRoom.objects.filter(room_no=number).exists():
             return number
+
+
+def generate_unique_deep_link_token(length: int = 22) -> str:
+    """URL-safe 랜덤 토큰 생성(추측 불가) 및 중복 방지"""
+    while True:
+        token = secrets.token_urlsafe(length)
+        if not StudyRoom.objects.filter(deep_link_token=token).exists():
+            return token
+
+def build_deep_link(token: str) -> str:
+    base = getattr(settings, 'APP_LINK_BASE_URL', None)
+    if not base:
+        domain = getattr(settings, 'APP_LINK_DOMAIN', 'example.com')
+        base = f'https://{domain}/s/'
+    if not base.endswith('/'):
+        base += '/'
+    return f'{base}{token}'
 
 
 def get_random_practice_problems(region_id: int, problem_type: str):

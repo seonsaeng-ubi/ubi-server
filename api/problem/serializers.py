@@ -155,7 +155,7 @@ class StudyRoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudyRoom
-        fields = ['id', 'room_no', 'problems', 'users', 'region', 'type']
+        fields = ['id', 'room_no', 'problems', 'users', 'region', 'type', 'deep_link']
 
     def get_problems(self, obj):
         return ProblemListSerializer(obj.problems, many=True)
@@ -165,4 +165,4 @@ class StudyRoomSerializer(serializers.ModelSerializer):
 class StudyRoomListSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyRoom
-        fields = ['id', 'room_no', 'region', 'type']
+        fields = ['id', 'room_no', 'region', 'type', 'deep_link']

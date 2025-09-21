@@ -6,6 +6,7 @@ from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg import openapi
+from api.problem.views import AssetLinksView, AppleAppSiteAssociationView, StudyRoomDeepLinkResolveAPIView
 import os
 
 
@@ -29,6 +30,12 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    # well-known for app/universal links
+    path('.well-known/assetlinks.json', AssetLinksView.as_view(), name='assetlinks'),
+    path('.well-known/apple-app-site-association', AppleAppSiteAssociationView.as_view(), name='apple-app-site-association'),
+    # root-level deep link resolver (fallback or web)
+    path('s/<str:token>/', StudyRoomDeepLinkResolveAPIView.as_view(), name='deeplink-resolve'),
+
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('summernote/', include('django_summernote.urls')),
