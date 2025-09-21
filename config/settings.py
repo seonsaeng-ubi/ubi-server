@@ -239,3 +239,28 @@ MAX_UPLOAD_SIZE = 104857600
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
 FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+# --- Security & HTTPS (behind Nginx) ---
+# Trust the X-Forwarded-Proto header set by Nginx so Django knows the original scheme
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+# Enable HTTPS-only features in non-debug environments
+if not DEBUG:
+    # Redirect HTTP -> HTTPS at Django layer as a safety net (Nginx also redirects)
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Allow configuring CSRF trusted origins via env (comma-separated)
+_csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
+else:
+    # Derive from ALLOWED_HOSTS if explicitly set (skip wildcard)
+    CSRF_TRUSTED_ORIGINS = [
+        f"https://{h.lstrip('.')}" for h in ALLOWED_HOSTS if h and h != '*'
+    ]
