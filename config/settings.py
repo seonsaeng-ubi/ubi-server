@@ -16,7 +16,7 @@ DEBUG = os.getenv('DEBUG', '')
 if DEBUG is True:
     ALLOWED_HOSTS = ['*', ]
 else:
-    ALLOWED_HOSTS = ['https://woobi.co.uk', 'http://woobi.co.uk']
+    ALLOWED_HOSTS = ['woobi.co.uk', 'www.woobi.co.uk']
 
 # Application definition
 
