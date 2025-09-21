@@ -18,8 +18,11 @@ services:
     container_name: ngx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/acme:/var/www/certbot
       - .:/app
       - ./static:/static
     depends_on:

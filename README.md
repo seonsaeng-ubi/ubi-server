@@ -92,3 +92,30 @@ Pull 이상 있을 시
 git fetch --all
 git reset --hard origin/main 아니면 origin/master 등등
 ```
+
+---
+
+## HTTPS 적용 가이드
+
+본 리포는 다음과 같이 HTTPS를 지원하도록 구성되어 있습니다.
+
+- docker-compose: Nginx 443 포트 노출(ports: 443:443) 및 인증서 경로 마운트(./nginx/certs → /etc/nginx/certs).
+- Nginx: 80 → 443 리다이렉트, 443에서 TLS 종료 후 Django로 프록시, X-Forwarded-Proto 헤더 전달.
+- Django(settings.py): SECURE_PROXY_SSL_HEADER, USE_X_FORWARDED_HOST, (DEBUG=False 시) SECURE_SSL_REDIRECT/HSTS/보안 쿠키, CSRF_TRUSTED_ORIGINS 환경변수 지원.
+
+필수 준비물
+- 도메인과 인증서 파일(실서버: 발급된 fullchain.pem, privkey.pem / 테스트: self-signed 가능).
+- 인증서 파일 위치: 프로젝트 ./nginx/certs/fullchain.pem, ./nginx/certs/privkey.pem
+
+배포/실행 요약
+1) 인증서 파일을 위 경로에 배치한다.
+2) 환경변수(.env)에 운영 시 다음을 설정한다.
+   - DEBUG=False
+   - CSRF_TRUSTED_ORIGINS=https://example.com,https://www.example.com (필요 도메인 나열)
+   - (옵션) SECURE_SSL_REDIRECT=True, SECURE_HSTS_SECONDS=31536000
+3) DNS를 서버 공인 IP로 설정한다.
+4) 컨테이너 재시작 후 http로 접속 시 https로 리다이렉트된다.
+
+참고: Let’s Encrypt 사용 시
+- webroot(/.well-known/acme-challenge) 경로가 Nginx에 열려 있으므로 certbot(webroot 모드)로 인증서를 발급 후 ./nginx/certs에 배치하면 된다.
+- 인증서 갱신 시 컨테이너를 재시작하여 Nginx가 새 인증서를 읽도록 한다.
