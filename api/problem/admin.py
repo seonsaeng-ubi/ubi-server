@@ -1,4 +1,4 @@
-from api.problem.models import Region, BigSubject, SmallSubject, Problem, Color, TestSet, RealRegion
+from api.problem.models import Region, BigSubject, SmallSubject, StudyRoom, Problem, Color, TestSet, RealRegion
 from django.contrib import admin
 
 
@@ -74,3 +74,12 @@ class ColorAdmin(admin.ModelAdmin):
 @admin.register(TestSet)
 class TesttSetAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(StudyRoom)
+class StudyRoomAdmin(admin.ModelAdmin):
+    list_display = ['id', 'room_no', 'type', 'region', 'deep_link_token']
+    list_filter = ['type', 'region']
+    search_fields = ['room_no', 'deep_link_token']
+    filter_horizontal = ['problems', 'users']
+    readonly_fields = ['deep_link']

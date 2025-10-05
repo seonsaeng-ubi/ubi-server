@@ -109,7 +109,7 @@ class StudyRoomCreateAPIView(APIView):
         study_room.save()
 
         # 여기에 data serialize해서 response 할 것.
-        serializer = StudyRoomSerializer(study_room)
+        serializer = StudyRoomSerializer(study_room, context={'request': request})
         return Response(serializer.data, status=200)
 
 
