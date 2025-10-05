@@ -80,7 +80,7 @@ class StudyRoomCreateAPIView(APIView):
         user = request.user
         # 지역 필터링
         region_no = int(request.data.get('region', '1'))
-        region = Region.objects.get(region_no)
+        region = Region.objects.get(id=region_no)
         # 문제 타입 필터링 (구상형, 즉답형, 모의고사 세트)
         type = request.data.get('type', 'A')
         # 스터디룸 번호 생성
