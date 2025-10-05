@@ -158,7 +158,7 @@ class StudyRoomSerializer(serializers.ModelSerializer):
         fields = ['id', 'room_no', 'problems', 'users', 'region', 'type', 'deep_link']
 
     def get_problems(self, obj):
-        return ProblemListSerializer(obj.problems, many=True, context=self.context).data
+        return ProblemListSerializer(obj.problems.all(), many=True, context=self.context).data
 
 
 # 스터디룸 리스트

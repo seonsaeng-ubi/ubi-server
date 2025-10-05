@@ -36,7 +36,7 @@ def get_random_practice_problems(region_id: int, problem_type: str):
     region = regions.get(id=region_id)
 
     # 평가원일 경우
-    if region == pyeonggawon.id:
+    if region.id == pyeonggawon.id:
         problems = Problem.objects.filter(
             Q(region=region) & Q(type=problem_type) & Q(problem_type='P')
         )
@@ -56,15 +56,15 @@ def get_mockup_problems(region_id: int):
     # sejong = regions.get(title='세종')
     pyeonggawon = regions.get(title='평가원')
     gongtong = regions.get(title='공통')
-    region = region_id
+    region = regions.get(id=region_id)
 
     # 공통이거나 특정 지역일 경우 우선 필터링
-    if region == pyeonggawon.id:
+    if region.id == pyeonggawon.id:
         problems = Problem.objects.filter(region=region)
     else:
         problems = Problem.objects.filter(Q(region=region) | Q(region=gongtong))
     # 서울일 경우
-    if region == seoul.id:
+    if region.id == seoul.id:
         # 구상형 3문제, 즉답형 3, 추가 질문 2
         conception = problems.filter(type='A').order_by('?')[:2]
         immediate = problems.filter(type='B').order_by('?')[:3]
@@ -78,7 +78,7 @@ def get_mockup_problems(region_id: int):
 
         return result
     # 경기일 경우
-    elif region == gyeonggi.id:
+    elif region.id == gyeonggi.id:
         # 구상형 3문제, 즉답형 2
         conception = problems.filter(type='A').order_by('?')[:3]
         immediate = problems.filter(type='B').order_by('?')[:2]
