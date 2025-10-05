@@ -90,7 +90,6 @@ class StudyRoomCreateAPIView(APIView):
 
         study_room = StudyRoom.objects.create(
             region=region,
-            type=type,
             room_no=room_no,
         )
         # 딥링크 토큰/URL 생성
@@ -98,6 +97,9 @@ class StudyRoomCreateAPIView(APIView):
         deep_link = build_deep_link(token)
         study_room.deep_link_token = token
         study_room.deep_link = deep_link
+
+        real_type = '구상형' if type == 'A' else '즉답형' if type == 'B' else '모의고사'
+        study_room.type=real_type
         study_room.save()
 
         study_room.users.add(user)
