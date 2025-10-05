@@ -6,7 +6,7 @@ from .serializers import BigSubjectSerializer, RegionSerializer, ProblemListSeri
     ProblemUpdateSerializer, TestSetSerializer, StudyRoomSerializer, StudyRoomListSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from openpyxl_image_loader import SheetImageLoader
-from ..utils import StandardResultsSetPagination
+from ..utils import StandardResultsSetPagination, StudyRoomPagination
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from rest_framework.status import HTTP_200_OK
@@ -28,6 +28,7 @@ from django.http import JsonResponse
 class MyStudyRoomListAPIView(ListAPIView):
     serializer_class = StudyRoomListSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StudyRoomPagination
 
     def get_queryset(self):
         return StudyRoom.objects.filter(users=self.request.user).prefetch_related('problems', 'users').order_by('-id')
@@ -36,6 +37,7 @@ class MyStudyRoomListAPIView(ListAPIView):
 class AllStudyRoomListAPIView(ListAPIView):
     serializer_class = StudyRoomSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StudyRoomPagination
 
     def get_queryset(self):
         return StudyRoom.objects.prefetch_related('problems', 'users').order_by('-id')
