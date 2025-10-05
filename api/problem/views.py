@@ -79,13 +79,12 @@ class StudyRoomCreateAPIView(APIView):
         # 현재 사용자
         user = request.user
         # 지역 필터링
-        region_no = request.data.get('region', '1')
+        region_no = int(request.data.get('region', '1'))
+        region = Region.objects.get(region_no)
         # 문제 타입 필터링 (구상형, 즉답형, 모의고사 세트)
         type = request.data.get('type', 'A')
         # 스터디룸 번호 생성
         room_no = generate_unique_room_no()
-        # 정확한 지역 갖고 오기
-        region = Region.objects.get(id=region_no)
 
         study_room = StudyRoom.objects.create(
             region=region,
@@ -102,9 +101,9 @@ class StudyRoomCreateAPIView(APIView):
         study_room.users.add(user)
         # 질문 세트 분기
         if type == 'C':
-            problems = get_mockup_problems(region)
+            problems = get_mockup_problems(region_no)
         else:
-            problems = get_random_practice_problems(region, type)
+            problems = get_random_practice_problems(region_no, type)
         # 질문 넣기
         study_room.problems.set(problems)
         study_room.save()
