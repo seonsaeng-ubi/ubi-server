@@ -19,14 +19,9 @@ def generate_unique_deep_link_token(length: int = 22) -> str:
         if not StudyRoom.objects.filter(deep_link_token=token).exists():
             return token
 
+
 def build_deep_link(token: str) -> str:
-    base = getattr(settings, 'APP_LINK_BASE_URL', None)
-    if not base:
-        domain = getattr(settings, 'APP_LINK_DOMAIN', 'example.com')
-        base = f'https://{domain}/s/'
-    if not base.endswith('/'):
-        base += '/'
-    return f'{base}{token}'
+    return f'https://woobi.co.uk/{token}'
 
 
 def get_random_practice_problems(region_id: int, problem_type: str):
