@@ -12,16 +12,8 @@ def generate_unique_room_no():
             return number
 
 
-def generate_unique_deep_link_token(length: int = 22) -> str:
-    """URL-safe 랜덤 토큰 생성(추측 불가) 및 중복 방지"""
-    while True:
-        token = secrets.token_urlsafe(length)
-        if not StudyRoom.objects.filter(deep_link_token=token).exists():
-            return token
-
-
 def build_deep_link(token: str) -> str:
-    return f'https://woobi.co.uk/{token}'
+    return f'https://woobi.co.uk/s/study/room/{token}'
 
 
 def get_random_practice_problems(region_id: int, problem_type: str):

@@ -1,6 +1,6 @@
 from .models import BigSubject, SmallSubject, Region, Problem, TestSet, RealRegion, StudyRoom
 from .helpers import generate_unique_room_no, get_random_practice_problems, get_mockup_problems, \
-    generate_unique_deep_link_token, build_deep_link
+    build_deep_link
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView
 from .serializers import BigSubjectSerializer, RegionSerializer, ProblemListSerializer, \
     ProblemUpdateSerializer, TestSetSerializer, StudyRoomSerializer, StudyRoomListSerializer
@@ -31,7 +31,13 @@ class MyStudyRoomListAPIView(ListAPIView):
     pagination_class = StudyRoomPagination
 
     def get_queryset(self):
-        return StudyRoom.objects.filter(users=self.request.user).prefetch_related('problems', 'users').order_by('-id')
+        qs = StudyRoom.objects.filter(users=self.request.user).prefetch_related('problems', 'users').order_by('-id')
+        # room_no(옵션) 접두 검색
+        room_no = self.request.query_params.get('room_no', '')
+        room_no = room_no.strip() if isinstance(room_no, str) else ''
+        if room_no:
+            qs = qs.filter(room_no__startswith=room_no)
+        return qs
 
 
 class AllStudyRoomListAPIView(ListAPIView):
@@ -57,21 +63,21 @@ class StudyRoomDetailAPIView(RetrieveAPIView):
         return study_room
 
 
-class StudyRoomSearchAPIView(APIView):
+class StudyRoomSearchAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = StudyRoomListSerializer
+    pagination_class = StudyRoomPagination
 
-    def get(self, request, *args, **kwargs):
-        room_no = request.query_params.get('room_no', '')
-        room_no = room_no.strip()
-        if room_no == '':
-            return Response([], status=200)
+    def get_queryset(self):
+        # room_no 파라미터(옵션). 없으면 전체 목록
+        room_no = self.request.query_params.get('room_no', '')
+        room_no = room_no.strip() if isinstance(room_no, str) else ''
 
-        # 접두어로 시작하는 스터디룸 전체 검색
-        study_rooms = StudyRoom.objects.filter(room_no__startswith=room_no).order_by('-id')
-
-        # 리스트로 반환 (없으면 빈 리스트)
-        serializer = StudyRoomListSerializer(study_rooms, many=True)
-        return Response(serializer.data, status=200)
+        qs = StudyRoom.objects.prefetch_related('problems', 'users').order_by('-id')
+        if room_no:
+            # 방 번호 접두 검색 (예: 123 -> 123*)
+            qs = qs.filter(room_no__startswith=room_no)
+        return qs
 
 
 class StudyRoomCreateAPIView(APIView):
@@ -92,8 +98,8 @@ class StudyRoomCreateAPIView(APIView):
             region=region,
             room_no=room_no,
         )
-        # 딥링크 토큰/URL 생성
-        token = generate_unique_deep_link_token()
+        # 딥링크 토큰/URL 생성 (token = room_no)
+        token = room_no
         deep_link = build_deep_link(token)
         study_room.deep_link_token = token
         study_room.deep_link = deep_link

@@ -2,7 +2,7 @@ from django.urls import path
 from .views import SubjectAPIView, RegionAPIView, ScrapUpdateAPIView, ScrappedProblemListAPIView, success_view, \
     ProblemDetailAPIView, AllRandomPracticeProblemListAPIVIew, AllPracticeProblemListAPIVIew, upload_excel, \
     NewRealProblemListAPIView, SearchProblem, TestSetView, TestSetListView, ActiveRegionAPIView, MyStudyRoomListAPIView, \
-    AllStudyRoomListAPIView, StudyRoomDetailAPIView, StudyRoomSearchAPIView, StudyRoomCreateAPIView, \
+    StudyRoomDetailAPIView, StudyRoomSearchAPIView, StudyRoomCreateAPIView, \
     StudyRoomLeaveAPIView
 
 urlpatterns = [
@@ -36,11 +36,9 @@ urlpatterns = [
 
     # 내가 참여한 스터디룸 목록
     path('studyrooms/my/', MyStudyRoomListAPIView.as_view(), name='my-studyroom-list'),
-    # 모든 스터디룸 목록
-    path('studyrooms/', AllStudyRoomListAPIView.as_view(), name='all-studyroom-list'),
     # 스터디룸 상세 조회 (자동 참여)
     path('studyrooms/<int:pk>/', StudyRoomDetailAPIView.as_view(), name='studyroom-detail'),
-    # 방 번호로 스터디룸 검색
+    # 방 번호로 스터디룸 검색 + 전체 목록 (room_no 미지정 시)
     path('studyrooms/search/', StudyRoomSearchAPIView.as_view(), name='studyroom-search'),
     # 스터디룸 생성
     path('studyrooms/create/', StudyRoomCreateAPIView.as_view(), name='studyroom-create'),
