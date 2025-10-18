@@ -249,3 +249,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://woobi.co.uk',
     'https://www.woobi.co.uk',
 ]
+
+# Universal Link 관련 설정
+ALLOWED_REDIRECT_HOSTS = ['woobi.co.uk']
+
+# 커스텀 스킴 허용
+ALLOWED_SCHEMES = ['woobi', 'http', 'https']

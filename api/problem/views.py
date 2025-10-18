@@ -547,9 +547,23 @@ class StudyRoomDeepLinkResolveAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, token, *args, **kwargs):
-        # 전달받은 token만으로 앱 스킴으로 리다이렉트
-        target = f'woobi://study/room/{token}'
-        return redirect(target)
+        try:
+            # token 유효성 검증 (필수!)
+            if not token
+                return Response(
+                    {'error': 'Invalid token'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # 앱 스킴으로 리다이렉트
+            target = f'woobi://study/room/{token}'
+            return HttpResponseRedirect(target)
+
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class AssetLinksView(APIView):
