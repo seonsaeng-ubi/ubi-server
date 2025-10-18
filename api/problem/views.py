@@ -1,3 +1,5 @@
+from rest_framework import status
+
 from .models import BigSubject, SmallSubject, Region, Problem, TestSet, RealRegion, StudyRoom
 from .helpers import generate_unique_room_no, get_random_practice_problems, get_mockup_problems, \
     build_deep_link
@@ -22,7 +24,7 @@ import openpyxl
 import random
 import boto3
 import os
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 
 
 class MyStudyRoomListAPIView(ListAPIView):
@@ -543,20 +545,20 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-class StudyRoomDeepLinkResolveAPIView(View):
+class StudyRoomDeepLinkResolveAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, token, *args, **kwargs):
         try:
             # token 유효성 검증 (필수!)
-            if not token
+            if not token:
                 return Response(
                     {'error': 'Invalid token'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             # 앱 스킴으로 리다이렉트
-            target = f'https://woobi://study/room/{token}'
+            target = f'woobi://study/room/{token}'
             return HttpResponseRedirect(target)
 
         except Exception as e:
