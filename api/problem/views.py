@@ -543,7 +543,7 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-class StudyRoomDeepLinkResolveAPIView(APIView):
+class StudyRoomDeepLinkResolveAPIView(View):
     permission_classes = [AllowAny]
 
     def get(self, request, token, *args, **kwargs):
@@ -556,7 +556,7 @@ class StudyRoomDeepLinkResolveAPIView(APIView):
                 )
 
             # 앱 스킴으로 리다이렉트
-            target = f'woobi://study/room/{token}'
+            target = f'https://woobi://study/room/{token}'
             return HttpResponseRedirect(target)
 
         except Exception as e:
