@@ -9,6 +9,7 @@ from .serializers import BigSubjectSerializer, RegionSerializer, ProblemListSeri
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from openpyxl_image_loader import SheetImageLoader
 from ..utils import StandardResultsSetPagination, StudyRoomPagination
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from rest_framework.status import HTTP_200_OK
@@ -559,7 +560,11 @@ class StudyRoomDeepLinkResolveAPIView(APIView):
 
             # 앱 스킴으로 리다이렉트
             target = f'woobi://study/room/{token}'
-            return HttpResponseRedirect(target)
+            target = f'woobi://study/room/{token}'
+            response = HttpResponse(status=302)
+            response['Location'] = target
+            response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            return response
 
         except Exception as e:
             return Response(
