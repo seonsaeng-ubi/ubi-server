@@ -547,32 +547,9 @@ class StudyRoomDeepLinkResolveAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, token, *args, **kwargs):
-        # token은 통상 room_no와 동일하게 발급되지만, 하위 호환을 위해 둘 다 조회
-        try:
-            room = StudyRoom.objects.select_related('region').get(deep_link_token=token)
-        except StudyRoom.DoesNotExist:
-            try:
-                room = StudyRoom.objects.select_related('region').get(room_no=token)
-            except StudyRoom.DoesNotExist:
-                return Response({'detail': '존재하지 않는 링크입니다.'}, status=404)
-
-        region = room.region
-        data = {
-            'id': room.id,
-            'room_no': room.room_no,
-            'type': room.type,
-            'region': {
-                'id': region.id if region else None,
-                'title': region.title if region else None,
-            },
-            'deep_link': room.deep_link,
-            'token': room.deep_link_token,
-            'counts': {
-                'problems': room.problems.count(),
-                'users': room.users.count(),
-            },
-        }
-        return Response(data, status=200)
+        # 전달받은 token만으로 앱 스킴으로 리다이렉트
+        target = f'woobi://study/room/{token}'
+        return redirect(target)
 
 
 class AssetLinksView(APIView):
