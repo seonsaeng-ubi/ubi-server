@@ -33,8 +33,13 @@ urlpatterns = [
     # well-known for app/universal links
     path('.well-known/assetlinks.json', AssetLinksView.as_view(), name='assetlinks'),
     path('.well-known/apple-app-site-association', AppleAppSiteAssociationView.as_view(), name='apple-app-site-association'),
-    # root-level deep link resolver (fallback or web)
-    path('s/<str:token>/', StudyRoomDeepLinkResolveAPIView.as_view(), name='deeplink-resolve'),
+    # 일부 iOS 클라이언트 호환(루트에서도 제공)
+    path('apple-app-site-association', AppleAppSiteAssociationView.as_view(), name='apple-app-site-association-root'),
+
+    # Deep Link Resolver (Universal/App Links)
+    path('s/study/room/<str:token>/', StudyRoomDeepLinkResolveAPIView.as_view(), name='deeplink-resolve'),
+    # 기존 단축 경로도 병행 지원 (하위 호환)
+    path('s/<str:token>/', StudyRoomDeepLinkResolveAPIView.as_view(), name='deeplink-resolve-legacy'),
 
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
