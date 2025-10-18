@@ -29,7 +29,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 
 
 class MyStudyRoomListAPIView(ListAPIView):
-    serializer_class = StudyRoomListSerializer
+    serializer_class = StudyRoomSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StudyRoomPagination
 
@@ -68,7 +68,7 @@ class StudyRoomDetailAPIView(RetrieveAPIView):
 
 class StudyRoomSearchAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = StudyRoomListSerializer
+    serializer_class = StudyRoomSerializer
     pagination_class = StudyRoomPagination
 
     def get_queryset(self):
