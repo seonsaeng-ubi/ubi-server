@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg import openapi
 from api.problem.views import AssetLinksView, AppleAppSiteAssociationView, StudyRoomDeepLinkResolveAPIView
+from api.user.views import AppleSIWANotificationView
 import os
 
 
@@ -40,6 +41,10 @@ urlpatterns = [
     path('s/study/room/<str:token>/', StudyRoomDeepLinkResolveAPIView.as_view(), name='deeplink-resolve'),
     # 기존 단축 경로도 병행 지원 (하위 호환)
     path('s/<str:token>/', StudyRoomDeepLinkResolveAPIView.as_view(), name='deeplink-resolve-legacy'),
+
+    # Sign in with Apple Server-to-Server notifications (root path)
+    path('apple/siwa/notifications', AppleSIWANotificationView.as_view(), name='siwa-s2s-no-slash'),
+    path('apple/siwa/notifications/', AppleSIWANotificationView.as_view(), name='siwa-s2s'),
 
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
