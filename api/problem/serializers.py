@@ -158,7 +158,11 @@ class StudyRoomSerializer(serializers.ModelSerializer):
         fields = ['id', 'room_no', 'problems', 'users', 'region', 'type', 'deep_link']
 
     def get_problems(self, obj):
-        return ProblemListSerializer(obj.problems.all(), many=True, context=self.context).data
+        qs = obj.problems.all()
+        # 모의고사일 경우, 구상형(A) → 즉답형(B) 순서, 각 묶음은 number 오름차순
+        if obj.type == '모의고사':
+            qs = qs.order_by('type', 'number', 'id')
+        return ProblemListSerializer(qs, many=True, context=self.context).data
 
 
 # 스터디룸 리스트
