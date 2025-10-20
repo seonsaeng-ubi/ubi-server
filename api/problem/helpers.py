@@ -52,7 +52,7 @@ def get_mockup_problems(region_id: int):
         problems = Problem.objects.filter(Q(region=region) | Q(region=gongtong))
     # 서울일 경우
     if region.id == seoul.id:
-        # 구상형 3문제, 즉답형 3, 추가 질문 2
+        # 구상형 2, 즉답형 3
         conception = problems.filter(type='A').order_by('?')[:2]
         immediate = problems.filter(type='B').order_by('?')[:3]
         # additional = problems.filter(type='C').order_by('?')[:2]
@@ -60,7 +60,7 @@ def get_mockup_problems(region_id: int):
         type_a = conception.annotate(custom_order=Value(1))
         type_b = immediate.annotate(custom_order=Value(2))
         # type_c = additional.annotate(custom_order=Value(3))
-        result = type_a.union(type_b).order_by('custom_order')
+        result = type_a.union(type_b)
         # result = temp_result.union(type_c).order_by('custom_order')
 
         return result
@@ -72,7 +72,7 @@ def get_mockup_problems(region_id: int):
 
         type_a = conception.annotate(custom_order=Value(1))
         type_b = immediate.annotate(custom_order=Value(2))
-        result = type_a.union(type_b).order_by('custom_order')
+        result = type_a.union(type_b)
 
         return result
     # 평가원일 경우
@@ -83,6 +83,6 @@ def get_mockup_problems(region_id: int):
 
         type_a = conception.annotate(custom_order=Value(1))
         type_b = immediate.annotate(custom_order=Value(2))
-        result = type_a.union(type_b).order_by('custom_order')
+        result = type_a.union(type_b)
 
         return result
