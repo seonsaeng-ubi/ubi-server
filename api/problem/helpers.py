@@ -55,13 +55,13 @@ def get_mockup_problems(region_id: int):
         # 구상형 3문제, 즉답형 3, 추가 질문 2
         conception = problems.filter(type='A').order_by('?')[:2]
         immediate = problems.filter(type='B').order_by('?')[:3]
-        additional = problems.filter(type='C').order_by('?')[:2]
+        # additional = problems.filter(type='C').order_by('?')[:2]
 
         type_a = conception.annotate(custom_order=Value(1))
         type_b = immediate.annotate(custom_order=Value(2))
-        type_c = additional.annotate(custom_order=Value(3))
-        temp_result = type_a.union(type_b).order_by('custom_order')
-        result = temp_result.union(type_c).order_by('custom_order')
+        # type_c = additional.annotate(custom_order=Value(3))
+        result = type_a.union(type_b).order_by('custom_order')
+        # result = temp_result.union(type_c).order_by('custom_order')
 
         return result
     # 경기일 경우
