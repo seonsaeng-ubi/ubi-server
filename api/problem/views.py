@@ -558,12 +558,24 @@ class StudyRoomDeepLinkResolveAPIView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # 앱 스킴으로 리다이렉트
+            # 앱 스킴 target 구성
             target = f'woobi://study/room/{token}'
-            target = f'woobi://study/room/{token}'
-            response = HttpResponse(status=302)
-            response['Location'] = target
+            # 공유용 URL (웹)
+            share_url = build_deep_link(token)
+            # 페이지/OG 타이틀 (토큰 포함)
+            page_title = f'선생우비 임용고시 면접 #{token} 스터디방'
+
+            # 0.1초 후 이동하는 중간 HTML 렌더링
+            response = render(request, 'deeplink_redirect.html', {
+                'target': target,
+                'share_url': share_url,
+                'page_title': page_title,
+                'token': token,
+            })
+            # 캐시 방지 헤더
             response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
             return response
 
         except Exception as e:
