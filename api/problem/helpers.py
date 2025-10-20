@@ -23,12 +23,12 @@ def get_random_practice_problems(region_id: int, problem_type: str):
     # 평가원일 경우
     if region.id == pyeonggawon.id:
         problems = Problem.objects.filter(
-            Q(region=region) & Q(type=problem_type) & Q(problem_type='P')
+            Q(region=region) & Q(type=problem_type)
         )
     # 그 외의 경우
     else:
         problems = Problem.objects.filter(
-            (Q(region=region) | Q(region=gongtong)) & Q(type=problem_type) & Q(problem_type='P')
+            (Q(region=region) | Q(region=gongtong)) & Q(type=problem_type)
         )
     return problems.order_by('?')[:3]
 
