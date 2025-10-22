@@ -152,6 +152,7 @@ class TestSetSerializer(serializers.ModelSerializer):
 class StudyRoomSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
     problems = serializers.SerializerMethodField(read_only=True)
+    region = RegionSerializer(read_only=True)
 
     class Meta:
         model = StudyRoom
@@ -167,6 +168,8 @@ class StudyRoomSerializer(serializers.ModelSerializer):
 
 # 스터디룸 리스트
 class StudyRoomListSerializer(serializers.ModelSerializer):
+    region = RegionSerializer(read_only=True)
+
     class Meta:
         model = StudyRoom
         fields = ['id', 'room_no', 'region', 'type', 'deep_link']

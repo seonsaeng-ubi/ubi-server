@@ -34,7 +34,13 @@ class MyStudyRoomListAPIView(ListAPIView):
     pagination_class = StudyRoomPagination
 
     def get_queryset(self):
-        qs = StudyRoom.objects.filter(users=self.request.user).prefetch_related('problems', 'users').order_by('-id')
+        qs = (
+            StudyRoom.objects
+            .filter(users=self.request.user)
+            .select_related('region')
+            .prefetch_related('problems', 'users')
+            .order_by('-id')
+        )
         # room_no(옵션) 접두 검색
         room_no = self.request.query_params.get('room_no', '')
         room_no = room_no.strip() if isinstance(room_no, str) else ''
@@ -49,7 +55,12 @@ class AllStudyRoomListAPIView(ListAPIView):
     pagination_class = StudyRoomPagination
 
     def get_queryset(self):
-        return StudyRoom.objects.prefetch_related('problems', 'users').order_by('-id')
+        return (
+            StudyRoom.objects
+            .select_related('region')
+            .prefetch_related('problems', 'users')
+            .order_by('-id')
+        )
 
 
 class StudyRoomDetailAPIView(RetrieveAPIView):
@@ -58,7 +69,9 @@ class StudyRoomDetailAPIView(RetrieveAPIView):
 
     def get_object(self):
         pk = self.kwargs.get('pk')
-        study_room = get_object_or_404(StudyRoom.objects.prefetch_related('problems', 'users'), pk=pk)
+        study_room = get_object_or_404(
+            StudyRoom.objects.select_related('region').prefetch_related('problems', 'users'), pk=pk
+        )
 
         # 현재 사용자를 스터디룸에 추가 (이미 있으면 중복 추가 안됨)
         study_room.users.add(self.request.user)
@@ -76,7 +89,12 @@ class StudyRoomSearchAPIView(ListAPIView):
         room_no = self.request.query_params.get('room_no', '')
         room_no = room_no.strip() if isinstance(room_no, str) else ''
 
-        qs = StudyRoom.objects.prefetch_related('problems', 'users').order_by('-id')
+        qs = (
+            StudyRoom.objects
+            .select_related('region')
+            .prefetch_related('problems', 'users')
+            .order_by('-id')
+        )
         if room_no:
             # 방 번호 접두 검색 (예: 123 -> 123*)
             qs = qs.filter(room_no__startswith=room_no)
