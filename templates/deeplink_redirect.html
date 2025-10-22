@@ -12,78 +12,62 @@
     <meta property="og:title" content='{{ page_title }}'>
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://ubi-s3-bucket.s3.ap-northeast-2.amazonaws.com/preview.png">
-    <meta property="og:description" content="링크를 열면 스터디룸으로 연결됩니다.">
+    <meta property="og:description" content="링크를 열면 스터디방으로 연결됩니다.">
     <title>{{ page_title }}</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-
+        html, body { height: 100%; margin: 0; }
         body {
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: #fafafa;
-            color: #222;
+            background: #fafafa; color: #222;
         }
-
-        .card {
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 24px 20px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
-            text-align: center;
-            width: min(420px, 92%);
-        }
-
-        .title {
-            font-size: 18px;
-            margin: 0 0 10px;
-            font-weight: 700;
-        }
-
-        .desc {
-            font-size: 14px;
-            margin: 0 0 18px;
-            color: #666;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 16px;
-            border-radius: 8px;
-            background: #1f6feb;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .hint {
-            margin-top: 12px;
-            font-size: 12px;
-            color: #888;
-        }
+        .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 24px 20px; box-shadow: 0 4px 14px rgba(0, 0, 0, .06); text-align: center; width: min(420px, 92%); }
+        .title { font-size: 18px; margin: 0 0 10px; font-weight: 700; }
+        .desc { font-size: 14px; margin: 0 0 18px; color: #666; }
+        .btn { display: inline-block; padding: 10px 16px; border-radius: 8px; background: #1f6feb; color: #fff; text-decoration: none; font-weight: 600; }
+        .btn + .btn { margin-left: 8px; }
+        .hint { margin-top: 12px; font-size: 12px; color: #888; }
     </style>
     <script>
         (function () {
             var target = '{{ target|escapejs }}';
             // 0.1초 후 앱으로 이동
             setTimeout(function () {
-                try {
-                    window.location.href = target;
-                } catch (e) {}
+                try { window.location.href = target; } catch (e) {}
             }, 100);
+
+            // 스토어 링크 결정 및 버튼에 적용
+            function getStoreUrl() {
+                var ua = navigator.userAgent || '';
+                var isIOS = /iPhone|iPad|iPod/i.test(ua);
+                if (isIOS) {
+                    return 'https://apps.apple.com/kr/app/%EC%84%A0%EC%83%9D%EC%9A%B0%EB%B9%84/id6578453363';
+                }
+                return 'https://play.google.com/store/apps/details?id=com.seonsaengubi.android';
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                var btn = document.getElementById('updateBtn');
+                if (btn) {
+                    btn.setAttribute('href', getStoreUrl());
+                    btn.setAttribute('target', '_blank');
+                    btn.setAttribute('rel', 'noopener');
+                }
+            });
         })();
     </script>
 </head>
 <body>
 <div class="card">
-    <p class="title">앱으로 이동 중…</p>
-    <p class="desc">잠시만 기다려 주세요. 곧 스터디룸으로 이동합니다.</p>
+    <p class="title">선생우비 2차 면접 앱으로 이동중..</p>
+    <p class="desc">잠시만 기다려주세요. 곧 스터디방으로 이동합니다.</p>
     <a class="btn" href="{{ target }}">앱에서 열기</a>
+
+    <p class="title" style="font-size:16px; margin-top:18px;">[앱 업데이트]</p>
+    <p class="desc" style="margin-top:-4px;">스터디방 기능은 최신 버전으로 업데이트 이후 사용 가능합니다.</p>
+    <a class="btn" id="updateBtn" href="#">앱 업데이트</a>
+
     <div class="hint">자동으로 이동하지 않으면 위 버튼을 눌러 주세요.</div>
 </div>
 </body>
