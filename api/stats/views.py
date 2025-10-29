@@ -3,13 +3,19 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.status import HTTP_200_OK
 from rest_framework.response import Response
-from .models import Setting
+from .models import Setting, AndroidSetting
 
 
 @api_view(['GET'])
 def is_deployment_check(request):
     setting_object = Setting.objects.last()
     return Response({'version': setting_object.version, 'is_blocked': setting_object.is_blocked}, status=HTTP_200_OK)
+
+
+@api_view(['GET'])
+def is_deployment_check(request):
+    setting_object = AndroidSetting.objects.last()
+    return Response({'version': setting_object.version, 'is_enabled': setting_object.is_blocked}, status=HTTP_200_OK)
 
 
 @api_view(['GET'])
