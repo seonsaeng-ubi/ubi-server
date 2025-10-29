@@ -13,7 +13,7 @@ def is_deployment_check(request):
 
 
 @api_view(['GET'])
-def is_deployment_check(request):
+def is_android_deployment_check(request):
     setting_object = AndroidSetting.objects.last()
     return Response({'version': setting_object.version, 'is_enabled': setting_object.is_blocked}, status=HTTP_200_OK)
 
